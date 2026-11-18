@@ -1,0 +1,3799 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11142b">
+  <title>Life Simulator</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #f7f5ff;
+      background: #11142b;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --ink: #171a36;
+      --muted: #b6b9d1;
+      --panel: #202447;
+      --line: #ffffff20;
+      --blue: #70dcff;
+      --pink: #ff83c4;
+      --yellow: #ffe17c;
+      --green: #83f0bd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      padding: 28px 18px 22px;
+      background:
+        radial-gradient(ellipse at 12% 8%, #273b72 0, transparent 35%),
+        radial-gradient(ellipse at 88% 85%, #612e69 0, transparent 33%),
+        #11142b;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible {
+      outline: 3px solid var(--yellow);
+      outline-offset: 3px;
+    }
+
+    .shell { width: min(100%, 980px); margin: 0 auto; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 0 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border: 1px solid #ffffff35;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #72e0ff, #7484ff);
+      color: #1b2045;
+      font-size: 24px;
+      box-shadow: 0 8px 26px #4e90ff33;
+    }
+    .brand-name { font-size: 15px; font-weight: 850; letter-spacing: -.025em; }
+    .brand-tag { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .menu-button, .button {
+      min-height: 46px;
+      padding: 0 20px;
+      border: 1px solid #ffffff2a;
+      border-radius: 14px;
+      background: #ffffff12;
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform 140ms ease, filter 140ms ease, background 140ms ease;
+    }
+    .menu-button:hover, .button:hover { filter: brightness(1.12); transform: translateY(-2px); }
+    .button.primary {
+      border-color: #9beaff;
+      background: linear-gradient(135deg, #8ae8ff, #8d9eff);
+      color: #151a3a;
+      box-shadow: 0 8px 22px #73d6ff2b;
+    }
+    .button.pink {
+      border-color: #ffb1d7;
+      background: linear-gradient(135deg, #ffa1ce, #ff7daa);
+      color: #321530;
+    }
+    .button:disabled { opacity: .46; cursor: not-allowed; transform: none; }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 25px;
+      background: linear-gradient(145deg, #252a50f5, #1d2142f5);
+      box-shadow: 0 18px 60px #06081955, inset 0 1px #ffffff0b;
+    }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(26px, 6vw, 58px);
+      text-align: center;
+    }
+    .hero::before, .hero::after {
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border: 1px solid #8bdfff22;
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+    .hero::before { top: -105px; left: -70px; }
+    .hero::after { right: -85px; bottom: -125px; width: 260px; height: 260px; }
+    .hero > * { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 12px;
+      border: 1px solid #ffffff20;
+      border-radius: 999px;
+      background: #ffffff0c;
+      color: #c4c9f0;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin: 0; }
+    .hero h1 { margin-top: 19px; font-size: clamp(35px, 8vw, 64px); letter-spacing: -.065em; line-height: 1; }
+    .hero-copy { max-width: 570px; margin: 16px auto 0; color: var(--muted); font-size: clamp(15px, 2.7vw, 18px); line-height: 1.65; }
+    .hero-card {
+      display: grid;
+      width: min(100%, 590px);
+      grid-template-columns: 76px 1fr auto;
+      align-items: center;
+      gap: 16px;
+      margin: 30px auto 24px;
+      padding: 16px;
+      border: 1px solid #ffffff20;
+      border-radius: 19px;
+      background: #10142b80;
+      text-align: left;
+    }
+    .blue-avatar {
+      display: grid;
+      width: 70px;
+      height: 70px;
+      place-items: center;
+      border-radius: 22px;
+      background: linear-gradient(145deg, #7be8ff, #6483f4);
+      color: #172044;
+      font-size: 38px;
+      box-shadow: 0 7px 20px #68b7ff33;
+    }
+    .hero-card h2 { font-size: 18px; }
+    .hero-card p { margin-top: 5px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .difficulty {
+      padding: 7px 10px;
+      border: 1px solid #91f0c84d;
+      border-radius: 999px;
+      background: #79e7b81a;
+      color: #a4ffda;
+      font-size: 11px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .event-dots { display: flex; justify-content: center; gap: 8px; margin: 0 0 26px; }
+    .event-dots span { width: 9px; height: 9px; border-radius: 50%; background: #ffffff24; }
+    .event-dots span:nth-child(2n) { background: #88dfff80; }
+    .fine-print { margin-top: 15px; color: #9298ba; font-size: 12px; }
+
+    .journey { padding: clamp(20px, 4vw, 34px); }
+    .journey-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .journey-head h1 { font-size: clamp(25px, 5vw, 38px); letter-spacing: -.05em; }
+    .journey-head p { margin-top: 7px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .step-pill {
+      flex: 0 0 auto;
+      padding: 9px 12px;
+      border: 1px solid #8bdfff44;
+      border-radius: 999px;
+      background: #65d8ff14;
+      color: #a6ebff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .progress-track { height: 8px; overflow: hidden; border-radius: 99px; background: #ffffff13; }
+    .progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7de6ff, #ff8fc5); transition: width 350ms ease; }
+    .event-content { margin-top: 23px; }
+    .event-card {
+      padding: clamp(19px, 4vw, 30px);
+      border: 1px solid #ffffff1b;
+      border-radius: 20px;
+      background: #11152f8a;
+      text-align: center;
+      animation: arrive 300ms ease both;
+    }
+    @keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .event-emoji { font-size: 48px; line-height: 1; }
+    .event-card h2 { margin-top: 13px; font-size: clamp(23px, 5vw, 32px); letter-spacing: -.04em; }
+    .event-copy { max-width: 590px; margin: 10px auto 0; color: var(--muted); font-size: 15px; line-height: 1.65; }
+    .event-action { margin-top: 22px; }
+    .aside-note { margin-top: 16px; color: #939abf; font-size: 12px; }
+
+    .typing-input {
+      display: block;
+      width: min(100%, 470px);
+      min-height: 54px;
+      margin: 20px auto 0;
+      padding: 0 16px;
+      border: 1px solid #ffffff35;
+      border-radius: 13px;
+      background: #0c1027;
+      color: #fff;
+      font-size: 17px;
+    }
+    .typing-target {
+      display: inline-block;
+      margin-top: 19px;
+      padding: 10px 15px;
+      border: 1px solid #8bdfff3b;
+      border-radius: 12px;
+      background: #74ddff12;
+      color: #b8f1ff;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: .015em;
+    }
+
+    .arena-wrap { width: min(100%, 720px); margin: 22px auto 0; }
+    .arena {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: hidden;
+      border: 2px solid #b5c8ff;
+      border-radius: 15px;
+      background: #11162f;
+      box-shadow: 0 0 0 5px #9bb7ff13, 0 12px 30px #03061555;
+      touch-action: none;
+    }
+    .arena-status { display: flex; justify-content: space-between; gap: 12px; margin: 11px 1px 0; color: #d7d9f1; font-size: 13px; font-weight: 750; }
+    .arena-status span:last-child { color: #a4eaff; }
+    .arena-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 16px auto 0; }
+    .dpad { display: grid; grid-template-columns: repeat(3, 43px); grid-template-rows: repeat(2, 39px); gap: 5px; }
+    .dpad button {
+      border: 1px solid #ffffff2b;
+      border-radius: 10px;
+      background: #ffffff14;
+      color: #e6ecff;
+      cursor: pointer;
+      font-size: 17px;
+      font-weight: 800;
+      touch-action: none;
+      user-select: none;
+    }
+    .dpad button:active { background: #6edbff55; }
+    .dpad [data-key="up"] { grid-column: 2; grid-row: 1; }
+    .dpad [data-key="left"] { grid-column: 1; grid-row: 2; }
+    .dpad [data-key="down"] { grid-column: 2; grid-row: 2; }
+    .dpad [data-key="right"] { grid-column: 3; grid-row: 2; }
+    .control-tip { max-width: 235px; color: var(--muted); font-size: 12px; line-height: 1.5; text-align: left; }
+    .battle-start { margin-top: 15px; }
+    #skip-fight { display: block; margin: 12px auto 0; }
+
+    .chest-grid {
+      display: grid;
+      width: min(100%, 590px);
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(8px, 2vw, 14px);
+      margin: 23px auto 0;
+    }
+    .chest {
+      display: grid;
+      min-height: clamp(57px, 12vw, 82px);
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #ffdc7655;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #503a5b, #342849);
+      cursor: pointer;
+      transition: transform 150ms ease, background 200ms ease, border-color 200ms ease;
+    }
+    .chest:hover { transform: translateY(-3px) rotate(-2deg); }
+    .chest-art { position: relative; display: block; width: 37px; height: 31px; transition: transform 220ms ease; }
+    .chest-lid {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 1px;
+      width: 35px;
+      height: 12px;
+      border: 2px solid #8b4e23;
+      border-radius: 8px 8px 2px 2px;
+      background: linear-gradient(#ffd76d, #f8a63e);
+    }
+    .chest-body {
+      position: absolute;
+      bottom: 0;
+      left: 3px;
+      width: 31px;
+      height: 21px;
+      border: 2px solid #8b4e23;
+      border-radius: 2px 2px 7px 7px;
+      background: linear-gradient(90deg, #e58b39, #ffc44f 50%, #db7832);
+      box-shadow: inset 0 -4px #a84f29;
+    }
+    .chest-lock {
+      position: absolute;
+      z-index: 2;
+      top: 12px;
+      left: 15px;
+      width: 8px;
+      height: 10px;
+      border: 2px solid #fff0a8;
+      border-radius: 3px;
+      background: #c7772f;
+    }
+    .chest.opened {
+      border-color: #9fffd3a6;
+      background: linear-gradient(145deg, #20594e, #27384e);
+      animation: chestPop 260ms ease both;
+    }
+    .chest.opened .chest-art { transform: translateY(-5px) rotate(-8deg); }
+    .chest.opened .chest-lid { transform: translateY(-7px) rotate(-18deg); transform-origin: left bottom; }
+    .chest.opened .chest-body { filter: brightness(1.14); }
+    @keyframes chestPop { 50% { transform: scale(1.12); } }
+    .chest-sparkle { color: #baffd9; font-size: 24px; }
+    .chest-count { margin-top: 18px; color: #f8e6a3; font-weight: 800; }
+
+    .game-over { border-color: #ff829755; background: linear-gradient(145deg, #3b2347, #24203e); }
+    .game-over .event-emoji { color: #ff83a6; }
+    .game-over h1 { margin-top: 8px; color: #ff9db3; font-size: clamp(35px, 8vw, 53px); letter-spacing: .04em; }
+    .game-over .event-copy { color: #f2d6e5; }
+    .button-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 11px; margin-top: 23px; }
+    .complete-card {
+      padding: clamp(28px, 7vw, 58px);
+      border-color: #8dffd14a;
+      background: radial-gradient(ellipse at 50% 0, #42796d55, transparent 55%), linear-gradient(145deg, #222b4d, #1d2541);
+      text-align: center;
+    }
+    .complete-star { font-size: 64px; animation: float 2.2s ease-in-out infinite; }
+    @keyframes float { 50% { transform: translateY(-8px) rotate(5deg); } }
+    .complete-card h1 { margin-top: 12px; font-size: clamp(31px, 7vw, 51px); letter-spacing: -.055em; }
+    .complete-card p { max-width: 540px; margin: 13px auto 0; color: var(--muted); line-height: 1.7; }
+    .complete-card .nightmare-hit-summary { color: #c6ddff; font-size: 16px; font-weight: 800; }
+    .nightmare-hit-summary strong { color: #ffe17c; }
+    .footer-note { margin-top: 18px; color: #878eaf; font-size: 11px; text-align: center; }
+
+    .character-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
+    .character-choice {
+      display: flex;
+      min-height: 180px;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 20px;
+      border: 1px solid #ffffff20;
+      border-radius: 20px;
+      background: #10142b80;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+    .character-choice:hover { transform: translateY(-3px); border-color: #9deaff99; background: #20284d; }
+    .character-choice.red-choice:hover { border-color: #ff858599; }
+    .character-choice.weekend-choice:hover { border-color: #83baff99; }
+    .character-choice-top { display: flex; width: 100%; align-items: center; gap: 13px; }
+    .character-choice .blue-avatar, .character-choice .red-avatar { flex: 0 0 auto; }
+    .red-avatar {
+      display: grid;
+      width: 60px;
+      height: 60px;
+      place-items: center;
+      border-radius: 19px;
+      background: linear-gradient(145deg, #ff907f, #d54565);
+      color: #351327;
+      font-size: 31px;
+      box-shadow: 0 7px 20px #ff5e7d33;
+    }
+    .character-choice h2 { font-size: 21px; }
+    .character-choice p { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .character-choice .difficulty { margin-top: 14px; }
+    .character-choice .difficulty.hard { border-color: #ff9a9a55; background: #ff71801c; color: #ffb1ab; }
+    .character-choice .difficulty.weekend-difficulty { border-color: #83baff55; background: #64a7ff1c; color: #b9d8ff; }
+
+    .red-theme .journey-head h1, .red-theme .event-card h2 { color: #ffaaa5; }
+    .red-theme .step-pill { border-color: #ff868644; background: #ff6e6518; color: #ffc1b7; }
+    .red-theme .progress-fill { background: linear-gradient(90deg, #ff9b83, #ffcf78); }
+    .red-theme .arena { border-color: #ff9a98; }
+    .red-theme .arena-status span:last-child { color: #ffc1b7; }
+
+    .character-choice.fan-choice:hover { border-color: #d29aff99; }
+    .character-choice .fan-avatar {
+      display: grid;
+      width: 60px;
+      height: 60px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 19px;
+      background: linear-gradient(145deg, #e0a4ff, #8956d9);
+      color: #241238;
+      font-size: 32px;
+      box-shadow: 0 7px 20px #b667ff33;
+    }
+    .character-choice .difficulty.fan-difficulty { border-color: #d29aff55; background: #ba79ff1c; color: #e2c2ff; }
+    .fan-theme .journey-head h1, .fan-theme .event-card h2 { color: #d9b2ff; }
+    .fan-theme .step-pill { border-color: #d29aff55; background: #ba79ff1c; color: #e2c2ff; }
+    .fan-theme .progress-fill { background: linear-gradient(90deg, #c18aff, #788bff); }
+    .weekend-theme .journey-head h1, .weekend-theme .event-card h2 { color: #acd0ff; }
+    .weekend-theme .step-pill { border-color: #83baff55; background: #64a7ff1c; color: #c6ddff; }
+    .weekend-theme .progress-fill { background: linear-gradient(90deg, #64b6ff, #738aff); }
+    .weekend-theme .arena { border-color: #83baff; }
+    .weekend-minigame { border-color: #83baff3c; }
+    .weekend-theme .arena-status span:last-child { color: #c6ddff; }
+    .fan-minigame { border-color: #c18aff3c; }
+    .fan-hud, .distraction-hud, .rhythm-hud, .shooter-hud {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 9px;
+      margin: 16px auto 10px;
+      color: #e4d3ff;
+      font-size: 12px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .fan-hud #maze-clock { color: #e8c1ff; font-size: 23px; letter-spacing: .06em; }
+    .fan-canvas {
+      display: block;
+      width: min(100%, 800px);
+      height: auto;
+      margin: 0 auto;
+      border: 2px solid #ba8aea88;
+      border-radius: 14px;
+      background: #100d20;
+      box-shadow: 0 12px 30px #08041588;
+      touch-action: none;
+    }
+    .maze-frame, .shooter-frame { position: relative; width: min(100%, 800px); margin: 0 auto; }
+    .maze-frame { overflow: hidden; border-radius: 14px; }
+    .maze-frame.day-maze { background: #2b1648; box-shadow: 0 0 26px #b35cff25; }
+    .maze-frame.night-maze { background: #080d28; box-shadow: 0 0 34px #536dff38; }
+    .maze-frame.night-maze .fan-canvas { border-color: #7780e8; }
+    .fan-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 12px auto 0; }
+    .fan-controls button {
+      min-width: 46px;
+      min-height: 43px;
+      padding: 5px 12px;
+      border: 1px solid #c18aff55;
+      border-radius: 12px;
+      background: #9c62d529;
+      color: #f0ddff;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 850;
+      touch-action: none;
+      user-select: none;
+    }
+    .fan-controls button:active { background: #bd82ff66; }
+    .fan-tip { max-width: 720px; margin: 10px auto 0; color: #aaa5c5; font-size: 12px; line-height: 1.5; }
+    .distraction-hud { max-width: 760px; padding: 10px 13px; border: 1px solid #ffffff1b; border-radius: 12px; background: #10152b; }
+    .distraction-hud strong { color: #ffe083; font-size: 16px; }
+    .book-stage { position: relative; width: min(100%, 760px); margin: 0 auto; }
+    .book-page {
+      min-height: 300px;
+      padding: clamp(18px, 4vw, 35px);
+      border: 1px solid #f3e5b7;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #fff8df, #f3e8c5);
+      box-shadow: 0 9px 23px #0005;
+      color: #3e3346;
+      text-align: left;
+    }
+    .book-heading { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid #9a7a7a44; color: #867383; font-family: "Courier New", monospace; font-size: 10px; font-weight: 800; }
+    .book-page h3 { margin-top: 20px; color: #45304c; font-family: Georgia, serif; font-size: clamp(20px, 4vw, 26px); }
+    .book-copy, .book-words { margin-top: 12px; color: #514454; font-family: Georgia, serif; font-size: 15px; line-height: 1.8; }
+    .book-words { display: inline; }
+    .book-caret { display: inline-block; width: 7px; height: 17px; margin-left: 3px; vertical-align: -3px; background: #8557a1; animation: caretBlink 800ms steps(2, start) infinite; }
+    @keyframes caretBlink { to { visibility: hidden; } }
+    .distraction-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .distraction-popup {
+      position: absolute;
+      z-index: 2;
+      display: grid;
+      max-width: min(230px, 70%);
+      gap: 5px;
+      padding: 11px 13px;
+      border: 1px solid #fff9;
+      border-radius: 13px;
+      background: linear-gradient(145deg, #30294b, #17162d);
+      box-shadow: 0 8px 20px #0008;
+      color: #fff;
+      cursor: pointer;
+      pointer-events: auto;
+      text-align: left;
+      animation: popupIn 180ms ease both;
+    }
+    .distraction-popup strong { font-size: 12px; }
+    .distraction-popup span { color: #d1c9df; font-size: 10px; line-height: 1.35; }
+    .distraction-popup.youtube { border-color: #ff657788; background: linear-gradient(145deg, #572b43, #24182e); }
+    .distraction-popup.red { border-color: #ff8a9b88; }
+    .distraction-popup.blue { border-color: #80dcff88; }
+    .distraction-popup.phone { border-color: #a4ffbf88; }
+    .distraction-popup.ad { border-color: #ffe17c99; background: linear-gradient(145deg, #50422a, #25202d); }
+    @keyframes popupIn { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
+    .writing-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin-top: 14px; }
+    .write-button { min-width: 190px; user-select: none; touch-action: none; }
+    .write-button.writing { background: linear-gradient(135deg, #c994ff, #8b75f4); }
+    .writing-controls .fan-tip { margin: 0; }
+    .rhythm-hud { max-width: 800px; }
+    .rhythm-song { color: #e9caff; font-family: "Courier New", monospace; }
+    .rhythm-song strong { display: block; margin-top: 4px; color: #ffe18d; text-align: center; }
+    .rhythm-canvas { background: #111023; }
+    .rhythm-controls button { min-width: 57px; font-size: 22px; }
+    .rhythm-defeat { margin: 22px auto 0; padding: 24px; border: 1px solid #ff9bcf77; border-radius: 18px; background: linear-gradient(145deg, #3e2347, #211d3c); animation: arrive 300ms ease both; }
+    .rhythm-defeat h3 { color: #ff9dd2; font-size: clamp(30px, 8vw, 48px); letter-spacing: .04em; }
+    .rhythm-defeat p { margin-top: 9px; color: #f3d9ef; font-size: 16px; }
+    .rhythm-defeat .button { margin-top: 18px; }
+    .shooter-hud { max-width: 800px; color: #d9d3ff; }
+    .shooter-frame { overflow: hidden; border-radius: 14px; }
+    .shooter-canvas { border-color: #8992ff88; }
+    .shooter-crosshair { position: absolute; top: 50%; left: 50%; color: #f4edff; font-size: 25px; font-weight: 500; line-height: 1; text-shadow: 0 0 5px #090719, 0 0 10px #090719; transform: translate(-50%, -50%); pointer-events: none; }
+    .shooter-controls button { min-width: 55px; }
+    .shooter-controls #shooter-fire { min-width: 75px; border-color: #ff9f9f88; background: #ed556a4d; }
+    .shooter-controls #shooter-reload { min-width: 75px; border-color: #a1a8ff77; }
+
+    .runner-shell { width: min(100%, 790px); margin: 20px auto 0; }
+    .runner-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 2px solid #d5e8ff;
+      border-radius: 17px;
+      background: #8ddfff;
+      box-shadow: 0 12px 30px #03061555;
+      touch-action: none;
+    }
+    .runner-hud { display: flex; justify-content: space-between; gap: 10px; margin: 10px 2px 0; color: #e7eaff; font-size: 13px; font-weight: 800; }
+    .runner-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-top: 12px; }
+    .runner-controls button { min-width: 52px; min-height: 42px; padding: 0 11px; border: 1px solid #ffffff35; border-radius: 12px; background: #ffffff14; cursor: pointer; touch-action: none; }
+    .runner-controls button:active { background: #ffb07855; }
+    .runner-tip { margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .boss-phase { margin: 11px auto 0; color: #c5dcff; font-size: 13px; font-weight: 850; letter-spacing: .06em; }
+    .shopping-board, .drive-shell { width: min(100%, 790px); margin: 18px auto 0; }
+    .shopping-hud, .drive-hud { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin: 10px 0; color: #dce8ff; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .shopping-hud strong { color: #ffe17c; font-size: 17px; }
+    .shopping-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 12px 0; padding: 13px; border: 1px solid #ffffff20; border-radius: 14px; background: #10152b; }
+    .shopping-item { padding: 7px 10px; border: 1px solid #ffffff22; border-radius: 10px; color: #e9eaff; font-size: 12px; }
+    .shopping-item.done { border-color: #81edc780; color: #a4f5c7; text-decoration: line-through; }
+    .aisle-tabs { display: flex; justify-content: center; gap: 8px; margin: 13px 0; }
+    .aisle-tab, .store-product { border: 1px solid #ffffff27; border-radius: 12px; background: #ffffff0d; cursor: pointer; }
+    .aisle-tab { min-height: 39px; padding: 0 14px; color: #dce8ff; font-weight: 750; }
+    .aisle-tab[aria-pressed="true"] { border-color: #83baff99; background: #4a78b52e; }
+    .store-products { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+    .store-product { display: grid; min-height: 87px; place-content: center; gap: 4px; padding: 9px; color: #f3f5ff; text-align: center; }
+    .store-product:hover { border-color: #83baff99; background: #ffffff18; }
+    .store-product:disabled { border-color: #81edc780; background: #28775942; color: #a4f5c7; cursor: default; }
+    .store-product span:first-child { font-size: 26px; }
+    .store-product span:last-child { font-size: 11px; font-weight: 750; }
+    .shopping-status { min-height: 21px; margin-top: 10px; color: #c8d6f1; font-size: 12px; }
+    .drive-canvas { display: block; width: min(100%, 790px); height: auto; margin: 0 auto; border: 2px solid #8296c788; border-radius: 14px; background: #080d1c; box-shadow: 0 12px 30px #08041588; touch-action: none; }
+    .drive-controls { display: flex; justify-content: center; gap: 14px; margin-top: 12px; }
+    .drive-controls button { min-width: 74px; min-height: 44px; border: 1px solid #a9c5ff55; border-radius: 12px; background: #718dc52a; color: #e6edff; cursor: pointer; font-size: 19px; font-weight: 850; touch-action: none; }
+    .drive-controls button:active { background: #8eafff66; }
+    .drive-tip { margin-top: 10px; color: var(--muted); font-size: 12px; }
+    .multi-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(250px, .8fr);
+      align-items: start;
+      gap: 14px;
+      margin-top: 17px;
+      text-align: left;
+    }
+    .multi-main,     .multi-side { display: grid; position: sticky; top: 10px; align-self: start; gap: 14px; min-width: 0; }
+    .challenge-panel { padding: 15px; border: 1px solid #ffffff21; border-radius: 16px; background: #0e122a; }
+    .challenge-head { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-bottom: 10px; }
+    .challenge-head h3 { font-size: 15px; }
+    .challenge-clock { color: #ffd890; font-size: 13px; font-variant-numeric: tabular-nums; font-weight: 850; }
+    .computer-shell {
+      padding: 11px;
+      border: 2px solid #536a58;
+      border-radius: 13px;
+      background: linear-gradient(145deg, #303b33, #18221e);
+      box-shadow: inset 0 0 0 2px #ffffff0b, 0 9px 22px #0004;
+      font-family: "Courier New", monospace;
+    }
+    .computer-screen {
+      min-height: 145px;
+      padding: 12px;
+      border: 3px solid #263d2d;
+      border-radius: 9px;
+      background: repeating-linear-gradient(0deg, #07190f 0, #07190f 3px, #0a2014 4px, #0a2014 6px);
+      box-shadow: inset 0 0 22px #62ff8740;
+      color: #a4ffb5;
+    }
+    .computer-log { display: flex; justify-content: space-between; gap: 8px; color: #69d882; font-size: 10px; font-weight: 700; }
+    .computer-problem { margin-top: 16px; color: #c1ffca; font-size: 17px; line-height: 1.35; text-shadow: 0 0 9px #66ff8433; }
+    .computer-prompt { margin-top: 11px; color: #83d997; font-size: 10px; letter-spacing: .12em; }
+    .computer-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 11px; }
+    .computer-option { min-height: 42px; padding: 8px 10px; border: 1px solid #71977a66; border-radius: 8px; background: #17241b; color: #d5f5d9; cursor: pointer; font-family: inherit; font-size: 12px; line-height: 1.35; text-align: left; transition: background 130ms ease, border-color 130ms ease; }
+    .computer-option:hover { border-color: #9af4aa; background: #253d2b; }
+    .computer-status { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; color: #aab9ad; font-size: 11px; }
+    .computer-status.complete { color: #9af4aa; }
+    .phone-panel { border-color: #82dbff55; text-align: center; }
+    .phone-device {
+      width: 100%;
+      max-width: 190px;
+      min-height: 180px;
+      margin: 0 auto;
+      padding: 11px;
+      border: 5px solid #aeb8d3;
+      border-radius: 24px;
+      background: linear-gradient(160deg, #232a4d, #10152e);
+      box-shadow: inset 0 0 0 2px #ffffff16, 0 12px 25px #0005;
+    }
+    .phone-speaker { width: 37px; height: 4px; margin: 1px auto 13px; border-radius: 5px; background: #8995b5; }
+    .phone-screen { display: grid; min-height: 111px; place-content: center; gap: 8px; border-radius: 13px; background: radial-gradient(circle at 50% 35%, #294e74, #111a37 72%); }
+    .phone-icon { font-size: 32px; }
+    .phone-timer { color: #b7eeff; font-size: 25px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .phone-button { min-height: 38px; margin-top: 8px; border: 0; border-radius: 10px; background: linear-gradient(135deg, #7be2ff, #90a5ff); color: #11152f; cursor: pointer; font-size: 12px; font-weight: 850; }
+    .phone-hint { margin-top: 8px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .quiz-question { color: #e7e8f6; font-size: 13px; line-height: 1.5; }
+    .quiz-options { display: grid; gap: 6px; margin-top: 9px; }
+    .quiz-option { padding: 8px 10px; border: 1px solid #ffffff22; border-radius: 9px; background: #ffffff0a; color: #e8e9f4; cursor: pointer; font-size: 12px; line-height: 1.4; text-align: left; }
+    .quiz-option:hover:not(:disabled) { border-color: #ffd78b88; background: #ffd78b14; }
+    .quiz-option:disabled { cursor: default; opacity: .7; }
+    .quiz-option.selected-correct { border-color: #82e9ae88; color: #9bf4be; }
+    .quiz-state { min-height: 18px; margin-top: 8px; color: #aeb6d1; font-size: 11px; }
+    .quiz-progress { color: #c5cbdf; font-size: 11px; }
+    .woman-overlay {
+      position: fixed;
+      z-index: 20;
+      right: calc(12px + 250px);
+      bottom: 12px;
+      width: min(420px, calc(100vw - 290px));
+      pointer-events: none;
+      animation: arrive 250ms ease both;
+    }
+    .woman-overlay[hidden] { display: none; }
+    .woman-card { width: 100%; padding: 18px; border: 1px solid #ffb5ce88; border-radius: 22px; background: linear-gradient(145deg, #392848f5, #1d2341f5); box-shadow: 0 16px 55px #08091999; pointer-events: auto; text-align: center; }
+    .woman-scene { display: flex; height: 150px; align-items: center; justify-content: center; gap: 18px; overflow: hidden; }
+    .woman-sprite { width: 100px; height: 130px; }
+    .woman-sprite.running { animation: runAway 1.8s ease-in forwards; }
+    .woman-eyes { transform-origin: center; }
+    .woman-scream { color: #ff9fbb; font-size: 20px; font-weight: 900; opacity: 0; }
+    .woman-scene.screaming .woman-scream { opacity: 1; animation: shake .16s linear infinite; }
+    .woman-scene.screaming .woman-eyes { transform: scale(1.45); }
+    @keyframes runAway { to { transform: translateX(350px) rotate(12deg); opacity: 0; } }
+    @keyframes shake { 50% { transform: translateX(3px) rotate(2deg); } }
+    .woman-card h2 { font-size: 21px; }
+    .woman-card p { margin-top: 8px; color: var(--muted); }
+    .woman-options { display: grid; gap: 8px; margin-top: 15px; }
+    .woman-options .button { min-height: 42px; font-size: 13px; }
+    .choice-buttons { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
+    .wait-count { margin-top: 18px; color: #bfe9ff; font-size: 38px; font-weight: 900; font-variant-numeric: tabular-nums; }
+
+    @media (max-width: 600px) {
+      body { padding: 17px 12px 18px; }
+      .topbar { margin-bottom: 16px; }
+      .brand-mark { width: 39px; height: 39px; border-radius: 13px; }
+      .hero-card { grid-template-columns: 58px 1fr; gap: 12px; margin: 24px auto 19px; padding: 12px; }
+      .blue-avatar, .red-avatar, .fan-avatar { width: 56px; height: 56px; border-radius: 18px; font-size: 31px; }
+      .difficulty { grid-column: 2; justify-self: start; margin-top: -5px; }
+      .journey-head { gap: 9px; }
+      .step-pill { padding: 8px 9px; font-size: 11px; }
+      .arena-controls { gap: 15px; }
+      .control-tip { max-width: 160px; }
+      .chest { border-radius: 11px; }
+      .character-grid { grid-template-columns: 1fr; }
+      .store-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .character-choice { min-height: 150px; }
+      .multi-event { padding: 12px; }
+      .multi-layout { grid-template-columns: minmax(0, 1fr) 104px; gap: 7px; }
+      .multi-side { display: block; position: sticky; top: 10px; }
+      .multi-side > section:not(.phone-panel) { display: none; }
+      .phone-device { min-height: 145px; padding: 6px; border-width: 3px; border-radius: 17px; }
+      .phone-speaker { margin-bottom: 8px; }
+      .phone-screen { min-height: 83px; gap: 4px; }
+      .phone-icon { font-size: 24px; }
+      .phone-timer { font-size: 19px; }
+      .phone-button { min-height: 44px; padding: 3px; font-size: 9px; line-height: 1.25; }
+      .phone-hint { font-size: 10px; }
+      .challenge-panel { padding: 9px; }
+      .challenge-head { gap: 4px; }
+      .challenge-head h3 { font-size: 12px; }
+      .computer-screen { min-height: 135px; padding: 9px; }
+      .computer-log { font-size: 9px; }
+      .computer-problem { font-size: 14px; }
+      .computer-options { grid-template-columns: 1fr; gap: 6px; margin-top: 8px; }
+      .computer-option { min-height: 36px; padding: 7px; font-size: 11px; }
+      .quiz-option { padding: 7px 6px; font-size: 11px; }
+      .woman-overlay { right: 116px; width: min(420px, calc(100vw - 140px)); }
+      .woman-card { padding: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">✦</div>
+        <div>
+          <div class="brand-name">LIFE SIMULATOR</div>
+          <div class="brand-tag">One day. Several questionable decisions.</div>
+        </div>
+      </div>
+      <button class="menu-button" id="menu-button" type="button" hidden>← Main menu</button>
+    </header>
+    <main id="app" aria-live="polite"></main>
+    <p class="footer-note">A tiny original game about making it through a very normal day.</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" async></script>
+  <script>
+    const characters = {
+      blue: {
+        name: "Blue",
+        difficulty: "Easy",
+        tagline: "Professional microwave enthusiast. Amateur bus dodger.",
+        emoji: "💙",
+        events: [
+          { id: "wake", title: "Wake up", kind: "button", emoji: "🌤️", description: "A new day begins. Your alarm clock is being very dramatic about it.", action: "Get out of bed", success: "Blue is awake. The pillow has been defeated." },
+          { id: "internship-commute", title: "Go to Internship", kind: "dodge", encounter: "Morning commute", pattern: "fan", emoji: "🚌", description: "Dodge the incoming chaos and make it to the internship. Survive for 10 seconds.", gameOver: "Bus crashed, you survived. But now you cant go to internship.. How unfortunate." },
+          { id: "internship", title: "Do Internship", kind: "typing", emoji: "⌨️", description: "Your supervisor asks you to type one sentence. This is apparently the whole job.", target: "I love Microwaves", gameOver: "You forgot how to type. Your internship supervisor is disappointed." },
+          { id: "home-commute", title: "Go Home", kind: "dodge", encounter: "The journey back", pattern: "lanes", emoji: "🌆", description: "The route home has developed a projectile problem. Find the gaps and survive for 10 seconds.", gameOver: "You got lost on your way home. Guess you're homeless now." },
+          { id: "fortnite", title: "Play Fortnite", kind: "chests", emoji: "🎮", description: "Twenty suspiciously convenient treasure chests. Open every single one.", chestCount: 20 },
+          { id: "sleep", title: "Sleep", kind: "button", emoji: "🌙", description: "You have completed an entire day. Go to sleep before the day invents a seventh event.", action: "Go to sleep", success: "Blue is asleep. The alarm clock is already plotting." }
+        ]
+      },
+      red: {
+        name: "Red",
+        difficulty: "Hard",
+        tagline: "Nightmare boxer. Railway enthusiast under protest.",
+        emoji: "❤️",
+        events: [
+          { id: "nightmare", title: "Fight your nightmare and wake up", kind: "dodge", encounter: "The nightmare", pattern: "red-nightmare", duration: 14, lives: 3, emoji: "👁️", description: "The nightmare has learned to aim. Survive its shifting attack patterns to wake up.", gameOver: "imagine not waking up" },
+          { id: "internship-commute", title: "Go to Internship", kind: "runner", environment: "day", duration: 30, difficulty: 1, emoji: "🚆", description: "Three lanes, one internship, and a railway system with a personal grudge. Survive for 30 seconds.", gameOver: "You just got Subway surfer'd" },
+          {
+            id: "internship",
+            title: "Do Internship",
+            kind: "multitask",
+            emoji: "📋",
+            description: "The office has four simultaneous emergencies. Naturally, all of them are your job.",
+            gameOver: {
+              computer: "You just leaked your Ip adress..... 219.51.250.123",
+              phone: "Pick up the phone, Pick up the phone. Why are my kids not home?",
+              quiz: "You failed the quiz. The microwave is now legally smarter than you.",
+              timeout: "The workday is over. The office microwave has been promoted again."
+            },
+            computerGoal: 8,
+            computerProblems: [
+              { id: "frozen", level: 1, issue: "Computer is frozen", solution: "Restart Computer", distractors: ["Replace the monitor", "Delete the user account", "Unplug the printer"] },
+              { id: "wifi", level: 1, issue: "No Internet Connection", solution: "Reconnect Wi-Fi", distractors: ["Restart the printer", "Turn off the monitor", "Empty the recycle bin"] },
+              { id: "printer", level: 1, issue: "Printer not responding", solution: "Restart Printer", distractors: ["Reconnect Wi-Fi", "Change the wallpaper", "Restart the keyboard"] },
+              { id: "black-screen", level: 1, issue: "Screen is black", solution: "Turn on Monitor", distractors: ["Restart the printer", "Clear the browser history", "Reconnect Wi-Fi"] },
+              { id: "keyboard", level: 2, issue: "Keyboard is not responding", solution: "Reconnect Keyboard", distractors: ["Change the screen resolution", "Restart the router", "Empty the recycle bin"] },
+              { id: "sound", level: 2, issue: "No sound from the speakers", solution: "Unmute Speakers", distractors: ["Turn on the monitor", "Restart the printer", "Reconnect the keyboard"] },
+              { id: "file", level: 2, issue: "A document will not open", solution: "Choose the Correct App", distractors: ["Reconnect Wi-Fi", "Turn off the speakers", "Restart the printer"] },
+              { id: "overheating", level: 2, issue: "Computer is overheating", solution: "Clear Air Vents", distractors: ["Increase screen brightness", "Unmute the speakers", "Empty the recycle bin"] },
+              { id: "pop-up", level: 3, issue: "A suspicious security pop-up appeared", solution: "Close the Untrusted Window", distractors: ["Enter your password into it", "Download its recommended tool", "Disable all security updates"] },
+              { id: "disk-full", level: 3, issue: "The system drive is almost full", solution: "Delete Temporary Files", distractors: ["Delete system files", "Restart the monitor", "Disable the firewall"] },
+              { id: "clock", level: 3, issue: "System time keeps drifting", solution: "Sync System Clock", distractors: ["Replace the keyboard", "Clear the air vents", "Restart the printer"] },
+              { id: "diagnostic", level: 3, issue: "A startup diagnostic reports a memory error", solution: "Run the Memory Diagnostic", distractors: ["Reconnect Wi-Fi", "Change the wallpaper", "Turn on the monitor"] }
+            ],
+            questions: [
+              { question: "What is the capital of Russia?", answers: ["Moscow", "Saint Petersburg", "Kyiv", "Berlin"], correct: 0 },
+              { question: "How to put a cow in the microwave?", answers: ["Open the microwave, put the cow inside, close it.", "Ask the cow nicely.", "Use a forklift.", "You can't, the cow is too powerful."], correct: 0 },
+              { question: "Would you burn a shrimp for no reason?", answers: ["Yes.", "No.", "Only on Tuesdays.", "Ask Greg."], correct: 2 },
+              { question: "How tf do i get the cow out of my microwave?", answers: ["Open the microwave.", "Buy another microwave.", "Call the police.", "Microwave another cow."], correct: 0 },
+              { question: "Tonight, we steal THE MOON!!", answers: ["YEEEEEEEEEEEEEEEEEEEE", "No", "The moon is a Mario Odyssey reference", "I eat dirt"], correct: 0 },
+              { question: "What colour are potatoes?", answers: ["Blue", "Red", "Purple", "Yellow"], correct: 0 }
+            ]
+          },
+          { id: "home-commute", title: "Go Home", kind: "runner", environment: "night", duration: 30, difficulty: 1.35, emoji: "🌃", description: "It is dark, you are tired, and trains have become less patient. Survive for 30 seconds.", gameOver: "You were so tired that you forgot trains are not made of pillows." },
+          { id: "fan-game", title: "Play Video Games with Fan", kind: "choice", emoji: "🎮", description: "Fan has challenged you. A historic opportunity presents itself.", gameOver: "You will NEVER let Fan win. Thats why your hacking every game, right?" },
+          { id: "wait-for-blue", title: "Wait for Blue to be online", kind: "wait", emoji: "🕒", description: "Blue said they would be online soon. The definition of soon remains under review." },
+          { id: "sleep", title: "Go to Sleep", kind: "dodge", encounter: "The final nightmare", pattern: "red-sleep", duration: 16, lives: 3, emoji: "🌙", description: "One last fight before bed. The nightmare brought a faster, messier encore.", gameOver: "Imagine not sleeping" }
+        ]
+      },
+      fan: {
+        name: "Fan",
+        difficulty: "Medium",
+        tagline: "Author, gamer, and champion sleeper.",
+        emoji: "💜",
+        events: [
+          { id: "wake", title: "Wake up", kind: "maze", maze: "morning", dayDuration: 90, emoji: "🌀", description: "Fan has slept through most of the day. Find any of nine exits in the purple dream maze; the clock starts at 08:00 and Fan wakes at 17:00." },
+          { id: "book", title: "Find motivation to work on your book", kind: "distraction", duration: 60, wordGoal: 1000, wordInterval: 650, emoji: "📖", description: "Write while fending off five kinds of distraction. The 1,000-word target is deliberately impossible in one minute; when time runs out, the day keeps going." },
+          { id: "rhythm", title: "Play games with Red", kind: "rhythm", duration: 60, emoji: "🎵", description: "Fan and Red are playing the same song. Red is suspiciously perfect. Keep up with the arrows for one minute." },
+          { id: "fortnite", title: "Play Fortnite with Blue", kind: "shooter", emoji: "🎯", description: "Explore the map with Blue and find all five stationary opponents. They are behind cover and, mercifully, do not shoot back." },
+          { id: "sleep", title: "Go to sleep", kind: "maze", maze: "night", emoji: "🌌", description: "One final, darker dream maze. Find any of nine exits and let Fan finally get some sleep." }
+        ]
+      },
+      "weekend-blue": {
+        name: "Weekend Blue",
+        difficulty: "Hard",
+        tagline: "A family trip, several hazards, and one very long nightmare.",
+        emoji: "🩵",
+        events: [
+          { id: "dodge-father", title: "Dodge Father", kind: "dodge", encounter: "Dodge Father", pattern: "weekend-father", duration: 45, lives: 6, phases: ["MEDIUM", "HARD", "EXTREME"], skipFight: true, emoji: "👨", description: "Dodge Father’s increasingly chaotic attacks. Three phases, fifteen seconds each.", gameOver: "Your choices don't matter" },
+          { id: "germany", title: "Go to Germany with your father", kind: "shopping", duration: 45, emoji: "🛒", description: "Navigate the supermarket, read the German labels, and collect every item on the list before time runs out.", gameOver: ["Du dummer Kartoffelkopf!", "Verdammter Einkaufswagen!", "Was zur Hölle ist das für ein Käse?!", "Du nutzloser Einkaufs-Champion!"] },
+          { id: "night-drive", title: "Go home", kind: "drive", duration: 45, emoji: "🚘", description: "Drive home through the night. The bends tighten, the obstacles multiply, and then it starts raining.", gameOver: "DRIVING IN MY CAR, RIGHT AFTER A BEER" },
+          { id: "nightmare-battle", title: "Go to sleep", kind: "dodge", encounter: "Nightmare Battle", pattern: "nightmare", duration: 90, immortal: true, emoji: "🌙", description: "Survive the nightmare for 90 seconds. Attacks intensify over time, but Blue cannot die here." }
+        ]
+      }
+    };
+
+    const progressByCharacter = {
+      blue: { eventIndex: 0, openedChests: new Set() },
+      red: { eventIndex: 0, openedChests: new Set() },
+      fan: { eventIndex: 0, openedChests: new Set() },
+      "weekend-blue": { eventIndex: 0, openedChests: new Set() }
+    };
+    let character = characters.blue;
+    let selectedCharacterId = null;
+    const app = document.getElementById("app");
+    const menuButton = document.getElementById("menu-button");
+    let screen = "menu";
+    let eventIndex = 0;
+    let openedChests = new Set();
+    let boss = null;
+    let animationFrame = 0;
+    let heldKeys = new Set();
+    let runner = null;
+    let runnerFrame = 0;
+    let multi = null;
+    let multiInterval = 0;
+    let waitInterval = 0;
+    let waitTimeout = 0;
+    let mazeGame = null;
+    let mazeFrame = 0;
+    let distractionGame = null;
+    let distractionInterval = 0;
+    let distractionTimeout = 0;
+    let rhythmGame = null;
+    let rhythmFrame = 0;
+    let rhythmTimeout = 0;
+    let shooterGame = null;
+    let shooterFrame = 0;
+    let shoppingGame = null;
+    let shoppingInterval = 0;
+    let driveGame = null;
+    let driveFrame = 0;
+    let nightmareHits = 0;
+
+    const ARENA_WIDTH = 720;
+    const ARENA_HEIGHT = 400;
+    const PLAYER_RADIUS = 12;
+    const SHOPPING_ROUNDS = [
+      {
+        aisleName: "Bäckerei & Kühlung",
+        items: [{ name: "Vollmilch" }, { name: "Brot" }],
+        aisles: [
+          { name: "Aisle 1 · Bakery", products: [{ name: "Brot", icon: "🍞" }, { name: "Toast", icon: "🍞" }, { name: "Brötchen", icon: "🥖" }] },
+          { name: "Aisle 2 · Dairy", products: [{ name: "Vollmilch", icon: "🥛" }, { name: "Buttermilch", icon: "🥛" }, { name: "Butter", icon: "🧈" }] }
+        ]
+      },
+      {
+        aisleName: "Obst & Kühlregal",
+        items: [{ name: "Apfelsaft" }, { name: "Äpfel" }, { name: "Naturjoghurt" }],
+        aisles: [
+          { name: "Aisle 1 · Obst", products: [{ name: "Äpfel", icon: "🍎" }, { name: "Birnen", icon: "🍐" }, { name: "Apfelmus", icon: "🍎" }, { name: "Kartoffeln", icon: "🥔" }] },
+          { name: "Aisle 2 · Getränke & Kühlung", products: [{ name: "Apfelsaft", icon: "🧃" }, { name: "Orangensaft", icon: "🧃" }, { name: "Naturjoghurt", icon: "🥣" }, { name: "Vanillejoghurt", icon: "🥣" }] }
+        ]
+      },
+      {
+        aisleName: "Vorrat & Haushalt",
+        items: [{ name: "Kartoffeln" }, { name: "Gouda" }, { name: "Mineralwasser" }, { name: "Zahnpasta" }],
+        aisles: [
+          { name: "Aisle 1 · Lebensmittel", products: [{ name: "Kartoffeln", icon: "🥔" }, { name: "Süßkartoffeln", icon: "🍠" }, { name: "Gouda", icon: "🧀" }, { name: "Frischkäse", icon: "🧀" }] },
+          { name: "Aisle 2 · Getränke & Haushalt", products: [{ name: "Mineralwasser", icon: "💧" }, { name: "Sprudelwasser", icon: "🫧" }, { name: "Zahnpasta", icon: "🪥" }, { name: "Zahnseide", icon: "🦷" }] }
+        ]
+      }
+    ];
+
+    function render() {
+      menuButton.hidden = screen === "menu" || screen === "complete";
+      menuButton.textContent = "← Character select";
+      if (screen === "menu") renderMenu();
+      else if (screen === "event") renderEvent();
+      else if (screen === "gameover") renderGameOver();
+      else renderComplete();
+    }
+
+    function renderMenu() {
+      app.innerHTML = `
+        <section class="panel hero">
+          <span class="eyebrow">✦ Pick a life to play</span>
+          <h1>Life Simulator</h1>
+          <p class="hero-copy">Four very different lives. Twenty-two events. At least one microwave with questionable career ambitions.</p>
+          <div class="character-grid">
+            ${Object.entries(characters).map(([id, entry]) => {
+              const progress = progressByCharacter[id];
+              const isComplete = progress.eventIndex >= entry.events.length;
+              const status = isComplete ? "Life complete · replay" : progress.eventIndex ? `Continue · event ${progress.eventIndex + 1} of ${entry.events.length}` : `Start · ${entry.events.length} events`;
+              const avatarClass = id === "red" ? "red-avatar" : id === "fan" ? "fan-avatar" : "blue-avatar";
+              const choiceClass = id === "red" ? "red-choice" : id === "fan" ? "fan-choice" : id === "weekend-blue" ? "weekend-choice" : "";
+              const difficultyClass = id === "red" ? "hard" : id === "fan" ? "fan-difficulty" : id === "weekend-blue" ? "weekend-difficulty" : "";
+              return `<button class="character-choice ${choiceClass}" type="button" data-character="${id}">
+                <span class="character-choice-top">
+                  <span class="${avatarClass}" aria-hidden="true">${entry.emoji}</span>
+                  <span><h2>${entry.name}</h2><p>${entry.tagline}</p></span>
+                </span>
+                <span class="difficulty ${difficultyClass}">${entry.difficulty.toUpperCase()} · ${entry.events.length} EVENTS</span>
+                <span class="fine-print">${status}</span>
+              </button>`;
+            }).join("")}
+          </div>
+          <p class="fine-print">Original characters, original chaos, no microwave employment guarantees.</p>
+        </section>`;
+      app.querySelectorAll("[data-character]").forEach((button) => {
+        button.addEventListener("click", () => selectCharacter(button.dataset.character));
+      });
+    }
+
+    function selectCharacter(id) {
+      cleanupMinigames();
+      selectedCharacterId = id;
+      character = characters[id];
+      const progress = progressByCharacter[id];
+      if (progress.eventIndex >= character.events.length) {
+        progress.eventIndex = 0;
+        progress.openedChests = new Set();
+      }
+      eventIndex = progress.eventIndex;
+      openedChests = progress.openedChests;
+      screen = eventIndex >= character.events.length ? "complete" : "event";
+      render();
+    }
+
+    function saveProgress() {
+      if (selectedCharacterId) {
+        progressByCharacter[selectedCharacterId] = { eventIndex, openedChests };
+      }
+    }
+
+    function renderJourney(event) {
+      const current = eventIndex + 1;
+      const percent = ((current - 1) / character.events.length) * 100;
+      return `
+        <section class="panel journey ${selectedCharacterId === "red" ? "red-theme" : selectedCharacterId === "fan" ? "fan-theme" : selectedCharacterId === "weekend-blue" ? "weekend-theme" : ""}">
+          <div class="journey-head">
+            <div><h1>${character.name}'s day</h1><p>${event.description}</p></div>
+            <span class="step-pill">EVENT ${current} / ${character.events.length}</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="Day progress" aria-valuemin="0" aria-valuemax="${character.events.length}" aria-valuenow="${current - 1}">
+            <div class="progress-fill" style="width:${percent}%"></div>
+          </div>
+          <div class="event-content">${renderEventContent(event)}</div>
+        </section>`;
+    }
+
+    function renderEventContent(event) {
+      if (event.kind === "button") {
+        return `
+          <section class="event-card">
+            <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+            <h2>${event.title}</h2>
+            <p class="event-copy">${event.success}</p>
+            <button class="button primary event-action" id="event-action" type="button">${event.action}</button>
+          </section>`;
+      }
+      if (event.kind === "dodge") {
+        const hasBossStatus = Boolean(event.phases || event.pattern === "nightmare");
+        const bossStatus = event.pattern === "nightmare" ? "NIGHTMARE INTENSITY · 0% · 72 BPM" : "PHASE 1 · MEDIUM";
+        const lifeDisplay = event.immortal ? "∞ HEARTS · IMMORTAL" : `${"❤ ".repeat(event.lives || 6).trim()}`;
+        return `
+          <section class="event-card">
+            <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+            <h2>${event.encounter}</h2>
+            <p class="event-copy">${event.immortal ? `Dodge the intensifying attacks. You cannot die; survive for ${event.duration} seconds.` : `Move the little heart and avoid the incoming attacks. Survive for ${event.duration || 10} seconds to continue.`}</p>
+            <div class="arena-wrap">
+              <canvas class="arena" id="arena" width="${ARENA_WIDTH}" height="${ARENA_HEIGHT}" aria-label="Bullet-dodging arena. Move with arrow keys or WASD, or drag the heart."></canvas>
+              ${hasBossStatus ? `<div class="boss-phase" id="boss-phase">${bossStatus}</div>` : ""}
+              <div class="arena-status">
+                <span id="lives-label" aria-label="${event.immortal ? "Immortal" : `${event.lives || 6} hearts remaining`}">${lifeDisplay}</span>
+                ${event.immortal ? '<span id="nightmare-hit-count" aria-live="polite">HITS · 0</span>' : ""}
+                <span id="timer-label">READY · ${(event.duration || 10).toFixed(1)}s</span>
+              </div>
+              <div class="arena-controls">
+                <div class="dpad" aria-label="Touch movement controls">
+                  <button type="button" data-key="up" aria-label="Move up">↑</button>
+                  <button type="button" data-key="left" aria-label="Move left">←</button>
+                  <button type="button" data-key="down" aria-label="Move down">↓</button>
+                  <button type="button" data-key="right" aria-label="Move right">→</button>
+                </div>
+                <p class="control-tip">Arrow keys / WASD, touch controls, or drag the heart.</p>
+              </div>
+            </div>
+            <button class="button primary battle-start" id="battle-start" type="button">Start encounter</button>
+            ${event.skipFight ? '<button class="button event-action" id="skip-fight" type="button">Skip Fight</button>' : ""}
+          </section>`;
+      }
+      if (event.kind === "shopping") return renderShoppingContent(event);
+      if (event.kind === "drive") return renderDriveContent(event);
+      if (event.kind === "runner") {
+          return `
+            <section class="event-card">
+              <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+              <h2>${event.title}</h2>
+              <p class="event-copy">${event.description}</p>
+              <div class="runner-shell">
+                <canvas class="runner-canvas" id="runner-canvas" width="800" height="450" aria-label="Perspective railway runner with three lanes"></canvas>
+                <div class="runner-hud"><span id="runner-time">30.0 seconds</span><span id="runner-distance">LANE 2 · READY</span></div>
+                <div class="runner-controls" aria-label="Touch runner controls">
+                  <button type="button" data-runner-action="left" aria-label="Move left">← Lane</button>
+                  <button type="button" data-runner-action="jump" aria-label="Jump">↑ Jump</button>
+                  <button type="button" data-runner-action="slide" aria-label="Slide">↓ Slide</button>
+                  <button type="button" data-runner-action="right" aria-label="Move right">Lane →</button>
+                </div>
+                <p class="runner-tip">A / D or ← / → change lanes · W / ↑ jumps · S / ↓ slides · swipe to move on touch screens.</p>
+                <p class="runner-tip" id="runner-engine-note" hidden></p>
+              </div>
+              <button class="button primary battle-start" id="runner-start" type="button">Start running</button>
+            </section>`;
+      }
+      if (event.kind === "multitask") return renderMultitask(event);
+      if (event.kind === "maze") return renderMazeContent(event);
+      if (event.kind === "distraction") return renderDistractionContent(event);
+      if (event.kind === "rhythm") return renderRhythmContent(event);
+      if (event.kind === "shooter") return renderShooterContent(event);
+      if (event.kind === "choice") {
+          return `
+            <section class="event-card">
+              <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+              <h2>${event.title}</h2>
+              <p class="event-copy">Let Fan win?</p>
+              <div class="choice-buttons">
+                <button class="button pink" id="fan-yes" type="button">YES</button>
+                <button class="button primary" id="fan-no" type="button">NO</button>
+              </div>
+            </section>`;
+      }
+      if (event.kind === "wait") {
+          return `
+            <section class="event-card">
+              <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+              <h2>${event.title}</h2>
+              <p class="event-copy">${event.description}</p>
+              <div class="wait-count" id="wait-count">10</div>
+              <p class="aside-note" id="wait-message">Waiting is the entire minigame. Try not to blink for ten seconds.</p>
+            </section>`;
+      }
+      if (event.kind === "typing") {
+        return `
+          <section class="event-card">
+            <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+            <h2>${event.title}</h2>
+            <p class="event-copy">${event.description}</p>
+            <p class="typing-target" aria-label="Sentence to type">${event.target}</p>
+            <input class="typing-input" id="typing-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type the exact sentence">
+            <button class="button primary event-action" id="typing-submit" type="button">Submit sentence</button>
+            <p class="aside-note">Capitalization and spaces matter. A microwave would never make this mistake.</p>
+          </section>`;
+      }
+      return `
+        <section class="event-card">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="chest-grid" aria-label="Treasure chests">
+            ${Array.from({ length: event.chestCount }, (_, index) => {
+              const isOpen = openedChests.has(index);
+              return `<button class="chest${isOpen ? " opened" : ""}" type="button" data-chest="${index}" aria-label="${isOpen ? `Opened chest ${index + 1}` : `Open chest ${index + 1}`}" ${isOpen ? "disabled" : ""}>
+                ${isOpen ? '<span class="chest-sparkle" aria-hidden="true">✦</span>' : '<span class="chest-art" aria-hidden="true"><i class="chest-lid"></i><i class="chest-body"></i><i class="chest-lock"></i></span>'}
+              </button>`;
+            }).join("")}
+          </div>
+          <p class="chest-count" id="chest-count">${openedChests.size} / ${event.chestCount} chests opened</p>
+        </section>`;
+    }
+
+    function renderShoppingContent(event) {
+      return `
+        <section class="event-card weekend-minigame">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="shopping-board">
+            <div class="shopping-hud"><span>TIME LEFT · <strong id="shopping-time" aria-live="polite">${event.duration.toFixed(1)}s</strong></span><span id="shopping-round">ROUND 1 / 3</span><span id="shopping-mistakes">MISTAKES · 0 / 3</span></div>
+            <div id="shopping-stage"></div>
+          </div>
+        </section>`;
+    }
+
+    function renderShoppingStage() {
+      if (!shoppingGame) return;
+      const stage = document.getElementById("shopping-stage");
+      const roundLabel = document.getElementById("shopping-round");
+      const mistakesLabel = document.getElementById("shopping-mistakes");
+      if (!stage || !roundLabel || !mistakesLabel) return;
+      const round = SHOPPING_ROUNDS[shoppingGame.round];
+      roundLabel.textContent = `ROUND ${shoppingGame.round + 1} / ${SHOPPING_ROUNDS.length} · ${round.aisleName}`;
+      mistakesLabel.textContent = `MISTAKES · ${shoppingGame.mistakes} / 3`;
+      stage.innerHTML = `
+        <p class="event-copy">Find these products before Father asks where the cheese aisle went:</p>
+        <div class="shopping-list" aria-label="Shopping list">
+          ${round.items.map((item) => `<span class="shopping-item${shoppingGame.collected.has(item.name) ? " done" : ""}">${shoppingGame.collected.has(item.name) ? "✓ " : "□ "}${item.name}</span>`).join("")}
+        </div>
+        <div class="aisle-tabs" role="group" aria-label="Supermarket aisles">
+          ${round.aisles.map((aisle, index) => `<button class="aisle-tab" type="button" data-aisle="${index}" aria-pressed="${shoppingGame.aisle === index}">${aisle.name}</button>`).join("")}
+        </div>
+        <div class="store-products">
+          ${round.aisles[shoppingGame.aisle].products.map((product) => {
+            const collected = shoppingGame.collected.has(product.name);
+            return `<button class="store-product" type="button" data-product="${product.name}" ${collected ? "disabled" : ""} aria-label="${product.name}${collected ? ", collected" : ""}">
+              <span aria-hidden="true">${product.icon}</span><span>${product.name}</span>
+            </button>`;
+          }).join("")}
+        </div>
+        <p class="shopping-status" id="shopping-status" aria-live="polite">Collected ${shoppingGame.collected.size} / ${round.items.length} products in this round.</p>`;
+      stage.querySelectorAll("[data-aisle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          shoppingGame.aisle = Number(button.dataset.aisle);
+          renderShoppingStage();
+        });
+      });
+      stage.querySelectorAll("[data-product]").forEach((button) => {
+        button.addEventListener("click", () => selectShoppingProduct(button.dataset.product));
+      });
+    }
+
+    function renderDriveContent(event) {
+      return `
+        <section class="event-card weekend-minigame">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="drive-shell">
+            <div class="drive-hud"><span id="drive-time">${event.duration.toFixed(1)}s</span><span id="drive-condition">NIGHT DRIVE · DRY</span></div>
+            <canvas class="drive-canvas" id="drive-canvas" width="790" height="410" aria-label="Nighttime driving game. Steer with left and right arrow keys or the controls. Avoid road obstacles."></canvas>
+            <div class="drive-controls" aria-label="Steering controls">
+              <button type="button" data-drive-key="left" aria-label="Steer left">←</button>
+              <button type="button" data-drive-key="right" aria-label="Steer right">→</button>
+            </div>
+            <p class="drive-tip" id="drive-status">Steer with ← / → or A / D. The road is calm for now.</p>
+          </div>
+          <button class="button primary battle-start" id="drive-start" type="button">Start driving</button>
+        </section>`;
+    }
+
+    function renderMazeContent(event) {
+      const sleeping = event.maze === "night";
+      return `
+        <section class="event-card fan-minigame maze-event">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="fan-hud">
+            <span id="maze-clock">${sleeping ? "21:00" : "08:00"}</span>
+            <span id="maze-status">${sleeping ? "DREAMING" : "MORNING"}</span>
+          </div>
+          <div class="maze-frame ${sleeping ? "night-maze" : "day-maze"}">
+            <canvas class="fan-canvas maze-canvas" id="maze-canvas" width="720" height="405" aria-label="First-person maze. Use W/S to move and A/D or left/right arrow keys to turn."></canvas>
+          </div>
+          <div class="fan-controls maze-controls" aria-label="Maze touch controls">
+            <button type="button" data-maze-key="a" aria-label="Turn left">↶</button>
+            <button type="button" data-maze-key="w" aria-label="Move forward">↑</button>
+            <button type="button" data-maze-key="s" aria-label="Move backward">↓</button>
+            <button type="button" data-maze-key="d" aria-label="Turn right">↷</button>
+          </div>
+          <p class="fan-tip" id="maze-tip">${sleeping ? "Look for any glowing portal in the twilight. Every exit leads out of this dream." : "Use W/S to walk and A/D or ←/→ to turn. Any of the portals opens at 17:00."}</p>
+        </section>`;
+    }
+
+    function renderDistractionContent(event) {
+      return `
+        <section class="event-card fan-minigame distraction-event">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="distraction-hud">
+            <span>TIME LEFT <strong id="distraction-clock">60.0</strong></span>
+            <span>WORDS <strong id="word-count">0 / ${event.wordGoal}</strong></span>
+          </div>
+          <div class="book-stage" id="book-stage">
+            <article class="book-page">
+              <div class="book-heading"><span>FAN'S NOVEL · DRAFT 1</span><span>PAGE 001</span></div>
+              <h3>The Day the Moon Forgot</h3>
+              <p class="book-copy" id="book-copy">The moon was late again. Nobody knew why. Fan opened a notebook and decided this was probably worth writing down.</p>
+              <p class="book-words" id="book-words" aria-live="polite"></p>
+              <div class="book-caret" aria-hidden="true"></div>
+            </article>
+            <div class="distraction-layer" id="distraction-layer"></div>
+          </div>
+          <div class="writing-controls">
+            <button class="button primary write-button" id="writing-button" type="button" aria-pressed="false">HOLD TO WRITE</button>
+            <p class="fan-tip" id="distraction-status">Hold the button to write. Let go before clicking a distraction.</p>
+          </div>
+          <p class="fan-tip">The target is ${event.wordGoal} words in one minute. The notebook has been given unrealistic expectations.</p>
+        </section>`;
+    }
+
+    function renderRhythmContent(event) {
+      return `
+        <section class="event-card fan-minigame rhythm-event">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="rhythm-hud">
+            <span>FAN · <strong id="fan-rhythm-score">0</strong></span>
+            <span class="rhythm-song">♪ BUFFERING HEARTBEAT ♪ <strong id="rhythm-tempo">NORMAL</strong></span>
+            <span>RED · <strong id="red-rhythm-score">0</strong> PERFECT</span>
+            <span id="rhythm-clock">60.0s</span>
+          </div>
+          <canvas class="fan-canvas rhythm-canvas" id="rhythm-canvas" width="800" height="440" aria-label="Rhythm game: play the left, down, up, and right arrow keys when notes reach the targets."></canvas>
+          <div class="fan-controls rhythm-controls" aria-label="Rhythm touch controls">
+            <button type="button" data-rhythm-key="0" aria-label="Hit left">←</button>
+            <button type="button" data-rhythm-key="1" aria-label="Hit down">↓</button>
+            <button type="button" data-rhythm-key="2" aria-label="Hit up">↑</button>
+            <button type="button" data-rhythm-key="3" aria-label="Hit right">→</button>
+          </div>
+          <p class="fan-tip" id="rhythm-status">Red is ready. Hit the arrows when they reach the targets.</p>
+          <button class="button primary event-action" id="rhythm-start" type="button">Start the song</button>
+          <section class="rhythm-defeat" id="rhythm-defeat" hidden>
+            <h3>YOU LOST!</h3>
+            <p>You lost HARD.</p>
+            <p>Red didn't miss a single note.</p>
+            <button class="button primary" id="rhythm-continue" type="button">Continue</button>
+          </section>
+        </section>`;
+    }
+
+    function renderShooterContent(event) {
+      return `
+        <section class="event-card fan-minigame shooter-event">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="shooter-hud">
+            <span>PLAYING WITH BLUE</span>
+            <span id="shooter-remaining">ENEMIES LEFT · 5</span>
+            <span id="shooter-ammo">AMMO · 6 / 6</span>
+          </div>
+          <div class="shooter-frame">
+            <canvas class="fan-canvas shooter-canvas" id="shooter-canvas" width="800" height="440" aria-label="First-person map. Use WASD to move, left and right arrows to turn, click or press Space to shoot, and R to reload."></canvas>
+            <span class="shooter-crosshair" aria-hidden="true">+</span>
+          </div>
+          <p class="fan-tip" id="shooter-status">WASD to explore · ←/→ to turn · click/Space to shoot · R to reload. Blue says the opponents are “probably behind something.”</p>
+          <div class="fan-controls shooter-controls" aria-label="Shooter touch controls">
+            <button type="button" data-shooter-key="left" aria-label="Turn left">↶</button>
+            <button type="button" data-shooter-key="forward" aria-label="Move forward">↑</button>
+            <button type="button" data-shooter-key="back" aria-label="Move backward">↓</button>
+            <button type="button" data-shooter-key="right" aria-label="Turn right">↷</button>
+            <button type="button" id="shooter-fire">FIRE</button>
+            <button type="button" id="shooter-reload">RELOAD</button>
+          </div>
+        </section>`;
+    }
+
+    function renderMultitask(event) {
+        const question = event.questions[multi.quizIndex];
+        return `
+          <section class="event-card multi-event">
+            <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+            <h2>${event.title}</h2>
+            <p class="event-copy">${event.description}</p>
+            <div class="multi-layout">
+              <div class="multi-main">
+                <section class="challenge-panel">
+                  <div class="challenge-head"><h3>A. Fix the Computer</h3><span class="challenge-clock" id="main-clock">60s</span></div>
+                  <div class="computer-shell">
+                    <div class="computer-screen">
+                      <div class="computer-log"><span>RED OS · SERVICE TERMINAL</span><span id="computer-level"></span></div>
+                      <div class="computer-log" id="computer-log" style="margin-top: 11px"></div>
+                      <h4 class="computer-problem" id="computer-problem"></h4>
+                      <p class="computer-prompt">SELECT A SOLUTION</p>
+                    </div>
+                    <div class="computer-options" id="computer-options"></div>
+                    <p class="computer-status" id="computer-status"><span>Correct repairs</span><span id="computer-progress"></span></p>
+                  </div>
+                </section>
+                <section class="challenge-panel" id="quiz-panel">
+                  <div class="challenge-head"><h3>C. Multiple-choice quiz</h3><span class="challenge-clock" id="quiz-clock">10s</span></div>
+                  ${question ? `
+                    <p class="quiz-progress" id="quiz-progress">Question ${multi.quizIndex + 1} of ${event.questions.length}</p>
+                    <p class="quiz-question" id="quiz-question">${question.question}</p>
+                    <div class="quiz-options">
+                      ${question.answers.map((answer, index) => `<button class="quiz-option${multi.quizAnswered === index ? " selected-correct" : ""}" type="button" data-answer="${index}" ${multi.quizAnswered !== null ? "disabled" : ""}>${String.fromCharCode(65 + index)}. ${answer}</button>`).join("")}
+                    </div>
+                    <p class="quiz-state" id="quiz-state">${multi.quizAnswered !== null ? "Correct. Hold on until the full ten-second round ends..." : "Choose carefully. The next question waits for this timer."}</p>
+                  ` : `<p class="quiz-progress">All six questions answered. The microwave grudgingly respects you.</p><p class="quiz-state" id="quiz-state">Quiz complete.</p>`}
+                </section>
+              </div>
+              <div class="multi-side">
+                <section class="challenge-panel phone-panel">
+                  <div class="challenge-head"><h3>B. The phone</h3><span class="challenge-clock">ALWAYS ON</span></div>
+                  <div class="phone-device">
+                    <div class="phone-speaker"></div>
+                    <div class="phone-screen">
+                      <span class="phone-icon" aria-hidden="true">📱</span>
+                      <span class="phone-timer" id="phone-clock">10.0</span>
+                    </div>
+                    <button class="phone-button" id="phone-button" type="button">PICK UP · RESET TIMER</button>
+                  </div>
+                  <p class="phone-hint">Every tap buys ten more seconds. Phone clicks affect only this phone.</p>
+                </section>
+                <section class="challenge-panel">
+                  <div class="challenge-head"><h3>Day shift</h3><span class="challenge-clock">60s TOTAL</span></div>
+                  <p class="quiz-state">The computer, phone, quiz, and main timer all keep running together.</p>
+                </section>
+              </div>
+            </div>
+            <div class="woman-overlay" id="woman-overlay" hidden>
+              <section class="woman-card">
+                <div class="woman-scene" id="woman-scene">
+                  <svg class="woman-sprite" id="woman-sprite" viewBox="0 0 100 130" role="img" aria-label="A woman who has appeared in the office">
+                    <path d="M25 42 Q18 8 52 10 Q84 12 77 48 L72 70 L29 68Z" fill="#573144"/>
+                    <ellipse cx="51" cy="43" rx="25" ry="31" fill="#f3bd9e"/>
+                    <path d="M26 41 Q26 15 52 14 Q76 16 77 42 Q67 31 58 27 Q45 37 26 41Z" fill="#513044"/>
+                    <g class="woman-eyes"><ellipse cx="42" cy="43" rx="4" ry="5" fill="#33223a"/><ellipse cx="61" cy="43" rx="4" ry="5" fill="#33223a"/></g>
+                    <path d="M45 58 Q52 62 59 58" fill="none" stroke="#ad5267" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M33 72 Q51 65 70 73 L80 118 L21 118Z" fill="#8ca7db"/>
+                    <path d="M38 115 L35 130 M63 115 L68 130" stroke="#e9b18f" stroke-width="10" stroke-linecap="round"/>
+                    <path d="M31 80 L14 101 M72 80 L87 99" stroke="#f3bd9e" stroke-width="8" stroke-linecap="round"/>
+                  </svg>
+                  <span class="woman-scream" id="woman-scream">AAAAAAAAAAAAAA!</span>
+                </div>
+                <h2 id="woman-dialogue">Could you help me with something?</h2>
+                <p>Red, pick a response:</p>
+                <div class="woman-options" id="woman-options">
+                  <button class="button" type="button" data-woman-answer="Sure, what do you need help with?">A. Sure, what do you need help with?</button>
+                  <button class="button" type="button" data-woman-answer="Well ofcourse my lady">B. Well ofcourse my lady</button>
+                  <button class="button" type="button" data-woman-answer="Hi">C. Hi</button>
+                </div>
+              </section>
+            </div>
+          </section>`;
+    }
+
+    function chooseComputerProblem(event) {
+      const level = multi.computerSolved < 3 ? 1 : multi.computerSolved < 6 ? 2 : 3;
+      const available = event.computerProblems.filter((problem) =>
+        problem.level === level && !multi.usedComputerProblems.includes(problem.id)
+      );
+      const problem = available[Math.floor(Math.random() * available.length)];
+      multi.usedComputerProblems.push(problem.id);
+      const choices = [problem.solution, ...problem.distractors];
+      for (let index = choices.length - 1; index > 0; index--) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [choices[index], choices[swapIndex]] = [choices[swapIndex], choices[index]];
+      }
+      return { ...problem, choices };
+    }
+
+    function renderComputerPanel() {
+      if (!multi) return;
+      const levelLabel = document.getElementById("computer-level");
+      const log = document.getElementById("computer-log");
+      const issue = document.getElementById("computer-problem");
+      const options = document.getElementById("computer-options");
+      const status = document.getElementById("computer-status");
+      const progress = document.getElementById("computer-progress");
+      if (!levelLabel || !log || !issue || !options || !status || !progress) return;
+
+      progress.textContent = `${multi.computerSolved} / ${multi.event.computerGoal}`;
+      if (multi.computerDone) {
+        levelLabel.textContent = "REPAIRS COMPLETE";
+        log.textContent = "ALL REQUIRED CHECKS PASSED";
+        issue.textContent = "Computer repaired. It has returned to ignoring your emails.";
+        options.replaceChildren();
+        status.classList.add("complete");
+        return;
+      }
+
+      const level = multi.currentProblem.level;
+      levelLabel.textContent = `LEVEL ${level}`;
+      log.textContent = `DIAGNOSTIC ${String(multi.computerSolved + 1).padStart(2, "0")} · ${level === 1 ? "BASIC" : level === 2 ? "INTERMEDIATE" : "ADVANCED"}`;
+      issue.textContent = multi.currentProblem.issue;
+      status.classList.remove("complete");
+      options.replaceChildren(...multi.currentProblem.choices.map((choice, index) => {
+        const button = document.createElement("button");
+        button.className = "computer-option";
+        button.type = "button";
+        button.textContent = `${String.fromCharCode(65 + index)}. ${choice}`;
+        button.addEventListener("click", () => answerComputer(index));
+        return button;
+      }));
+    }
+
+    function renderEvent() {
+      const event = character.events[eventIndex];
+      if (!event) {
+        screen = "complete";
+        renderComplete();
+        return;
+      }
+      if (event.kind === "multitask") {
+        multi = {
+          event,
+          startedAt: performance.now(),
+          phoneDeadline: performance.now() + 10000,
+          quizIndex: 0,
+          quizDeadline: performance.now() + 10000,
+          quizAnswered: null,
+          computerSolved: 0,
+          computerDone: false,
+          usedComputerProblems: [],
+          currentProblem: null,
+          womanTriggered: false,
+          womanDone: false,
+          womanTimers: [],
+          ended: false
+        };
+        multi.currentProblem = chooseComputerProblem(event);
+      }
+      app.innerHTML = renderJourney(event);
+      if (event.kind === "button") {
+        document.getElementById("event-action").addEventListener("click", completeEvent);
+      } else if (event.kind === "dodge") {
+        prepareBoss(event);
+        if (event.skipFight) {
+          document.getElementById("skip-fight").addEventListener("click", completeEvent);
+        }
+      } else if (event.kind === "runner") {
+        prepareRunner(event);
+      } else if (event.kind === "shopping") {
+        prepareShopping(event);
+      } else if (event.kind === "drive") {
+        prepareDrive(event);
+      } else if (event.kind === "multitask") {
+        prepareMultitask(event);
+      } else if (event.kind === "maze") {
+        prepareMaze(event);
+      } else if (event.kind === "distraction") {
+        prepareDistraction(event);
+      } else if (event.kind === "rhythm") {
+        prepareRhythm(event);
+      } else if (event.kind === "shooter") {
+        prepareShooter(event);
+      } else if (event.kind === "choice") {
+        document.getElementById("fan-yes").addEventListener("click", () => showGameOver(event));
+        document.getElementById("fan-no").addEventListener("click", completeEvent);
+      } else if (event.kind === "wait") {
+        startWait(event);
+      } else if (event.kind === "typing") {
+        const input = document.getElementById("typing-input");
+        document.getElementById("typing-submit").addEventListener("click", () => {
+          if (input.value === event.target) completeEvent();
+          else showGameOver(event);
+        });
+        input.addEventListener("keydown", (keyboardEvent) => {
+          if (keyboardEvent.key === "Enter") document.getElementById("typing-submit").click();
+        });
+        input.focus();
+      } else if (event.kind === "chests") {
+        app.querySelectorAll("[data-chest]").forEach((chest) => {
+          chest.addEventListener("click", () => {
+            openedChests.add(Number(chest.dataset.chest));
+            if (openedChests.size === event.chestCount) completeEvent();
+            else render();
+          });
+        });
+      }
+    }
+
+    function generateFanMaze(size, seed) {
+      const grid = Array.from({ length: size }, () => Array(size).fill(1));
+      let state = seed >>> 0;
+      const random = (maximum) => {
+        state = (state * 1664525 + 1013904223) >>> 0;
+        return state % maximum;
+      };
+      const stack = [[1, 1]];
+      grid[1][1] = 0;
+      while (stack.length) {
+        const [x, y] = stack[stack.length - 1];
+        const neighbors = [[0, -2], [2, 0], [0, 2], [-2, 0]]
+          .filter(([dx, dy]) => x + dx > 0 && x + dx < size - 1 && y + dy > 0 && y + dy < size - 1 && grid[y + dy][x + dx] === 1);
+        if (!neighbors.length) {
+          stack.pop();
+          continue;
+        }
+        const [dx, dy] = neighbors[random(neighbors.length)];
+        grid[y + dy / 2][x + dx / 2] = 0;
+        grid[y + dy][x + dx] = 0;
+        stack.push([x + dx, y + dy]);
+      }
+      return grid;
+    }
+
+    function createMazeExits(size, grid) {
+      const last = size - 2;
+      let center = Math.floor(last / 2);
+      if (center % 2 === 0) center -= 1;
+      const cells = [
+        [1, center], [center, 1], [last, center], [center, last],
+        [last, 1], [1, last], [last, last], [center, center], [1, 5]
+      ];
+      return cells
+        .filter(([x, y]) => grid[y]?.[x] === 0)
+        .map(([x, y]) => ({ x: x + 0.5, y: y + 0.5 }));
+    }
+
+    function prepareMaze(event) {
+      cleanupMaze();
+      const canvas = document.getElementById("maze-canvas");
+      const night = event.maze === "night";
+      const size = night ? 27 : 25;
+      const grid = generateFanMaze(size, night ? 0x7f4a91 : 0x4917d3);
+      mazeGame = {
+        event,
+        canvas,
+        context: canvas.getContext("2d"),
+        grid,
+        player: { x: 1.5, y: 1.5, angle: night ? 0.12 : 0 },
+        exits: createMazeExits(size, grid),
+        elapsed: 0,
+        lastTime: performance.now(),
+        night,
+        active: true,
+        startedAt: performance.now()
+      };
+      bindHeldControls("[data-maze-key]");
+      drawMaze();
+      mazeFrame = requestAnimationFrame(updateMaze);
+    }
+
+    function updateMaze(timestamp) {
+      if (!mazeGame || !mazeGame.active) return;
+      const delta = Math.min((timestamp - mazeGame.lastTime) / 1000, 0.05);
+      mazeGame.lastTime = timestamp;
+      mazeGame.elapsed += delta;
+      const keys = heldKeys;
+      const turn = Number(keys.has("d") || keys.has("arrowright")) - Number(keys.has("a") || keys.has("arrowleft"));
+      const forward = Number(keys.has("w") || keys.has("arrowup")) - Number(keys.has("s") || keys.has("arrowdown"));
+      mazeGame.player.angle += turn * delta * 1.9;
+      if (forward) {
+        const speed = forward * delta * 2.45;
+        const nextX = mazeGame.player.x + Math.cos(mazeGame.player.angle) * speed;
+        const nextY = mazeGame.player.y + Math.sin(mazeGame.player.angle) * speed;
+        if (canStandInMaze(nextX, mazeGame.player.y)) mazeGame.player.x = nextX;
+        if (canStandInMaze(mazeGame.player.x, nextY)) mazeGame.player.y = nextY;
+      }
+
+      const clock = document.getElementById("maze-clock");
+      const status = document.getElementById("maze-status");
+      const dayReady = !mazeGame.event.dayDuration || mazeGame.elapsed >= mazeGame.event.dayDuration;
+      if (clock) {
+        if (mazeGame.event.dayDuration) {
+          const minutes = 8 * 60 + Math.floor(Math.min(1, mazeGame.elapsed / mazeGame.event.dayDuration) * 540);
+          clock.textContent = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+        } else {
+          const dreamMinutes = (21 * 60 + Math.floor(mazeGame.elapsed * 6)) % (24 * 60);
+          clock.textContent = `${String(Math.floor(dreamMinutes / 60)).padStart(2, "0")}:${String(dreamMinutes % 60).padStart(2, "0")}`;
+        }
+      }
+      if (status) status.textContent = dayReady
+        ? `${mazeGame.exits.length} ${mazeGame.night ? "PORTALS OPEN" : "EXITS OPEN · FAN WAKES"}`
+        : (mazeGame.night ? `${mazeGame.exits.length} PORTALS IN THE DREAM` : `WAITING FOR 17:00 · ${mazeGame.exits.length} EXITS`);
+      drawMaze();
+
+      if (dayReady && mazeGame.exits.some((exit) => Math.hypot(mazeGame.player.x - exit.x, mazeGame.player.y - exit.y) < 0.48)) {
+        mazeGame.active = false;
+        completeEvent();
+        return;
+      }
+      mazeFrame = requestAnimationFrame(updateMaze);
+    }
+
+    function canStandInMaze(x, y) {
+      const grid = mazeGame.grid;
+      const radius = 0.2;
+      return grid[Math.floor(y - radius)]?.[Math.floor(x - radius)] === 0 &&
+        grid[Math.floor(y - radius)]?.[Math.floor(x + radius)] === 0 &&
+        grid[Math.floor(y + radius)]?.[Math.floor(x - radius)] === 0 &&
+        grid[Math.floor(y + radius)]?.[Math.floor(x + radius)] === 0;
+    }
+
+    function castMazeRay(angle, maxDistance = 32) {
+      const { grid, player } = mazeGame;
+      const dx = Math.cos(angle);
+      const dy = Math.sin(angle);
+      const deltaX = Math.abs(1 / (dx || 0.00001));
+      const deltaY = Math.abs(1 / (dy || 0.00001));
+      let mapX = Math.floor(player.x);
+      let mapY = Math.floor(player.y);
+      const stepX = dx < 0 ? -1 : 1;
+      const stepY = dy < 0 ? -1 : 1;
+      let sideX = (dx < 0 ? player.x - mapX : mapX + 1 - player.x) * deltaX;
+      let sideY = (dy < 0 ? player.y - mapY : mapY + 1 - player.y) * deltaY;
+      let side = 0;
+      while (Math.min(sideX, sideY) < maxDistance) {
+        if (sideX < sideY) {
+          sideX += deltaX;
+          mapX += stepX;
+          side = 0;
+        } else {
+          sideY += deltaY;
+          mapY += stepY;
+          side = 1;
+        }
+        if (grid[mapY]?.[mapX] !== 0) {
+          const distance = side === 0 ? (mapX - player.x + (1 - stepX) / 2) / dx : (mapY - player.y + (1 - stepY) / 2) / dy;
+          return { distance: Math.abs(distance), side };
+        }
+      }
+      return { distance: maxDistance, side: 0 };
+    }
+
+    function drawMaze() {
+      if (!mazeGame) return;
+      const { context: ctx, canvas, player, night } = mazeGame;
+      const width = canvas.width;
+      const height = canvas.height;
+      const half = height / 2;
+      const fov = Math.PI / 3;
+      const ceiling = ctx.createLinearGradient(0, 0, 0, half);
+      ceiling.addColorStop(0, night ? "#101932" : "#170d2a");
+      ceiling.addColorStop(1, night ? "#30345c" : "#55316c");
+      ctx.fillStyle = ceiling;
+      ctx.fillRect(0, 0, width, half);
+      const floor = ctx.createLinearGradient(0, half, 0, height);
+      floor.addColorStop(0, night ? "#181b39" : "#29183d");
+      floor.addColorStop(1, night ? "#070a1d" : "#100c20");
+      ctx.fillStyle = floor;
+      ctx.fillRect(0, half, width, half);
+
+      for (let screenX = 0; screenX < width; screenX += 2) {
+        const cameraX = (screenX / width) * 2 - 1;
+        const angle = player.angle + Math.atan(cameraX * Math.tan(fov / 2));
+        const hit = castMazeRay(angle);
+        const distance = Math.max(0.08, hit.distance * Math.cos(angle - player.angle));
+        const wallHeight = Math.min(height * 1.4, height / distance);
+        const top = half - wallHeight / 2;
+        const shade = Math.max(0.16, 1 - distance / 15) * (hit.side ? 0.77 : 1);
+        const rgb = night ? [118, 130, 228] : [190, 113, 226];
+        ctx.fillStyle = `rgb(${Math.floor(rgb[0] * shade)},${Math.floor(rgb[1] * shade)},${Math.floor(rgb[2] * shade)})`;
+        ctx.fillRect(screenX, top, 2.2, wallHeight);
+        ctx.fillStyle = night ? "#b9c3ff12" : "#ffdaff12";
+        ctx.fillRect(screenX, top, 2.2, 2);
+      }
+
+      const dayReady = !mazeGame.event.dayDuration || mazeGame.elapsed >= mazeGame.event.dayDuration;
+      for (const exit of mazeGame.exits) {
+        const exitDx = exit.x - player.x;
+        const exitDy = exit.y - player.y;
+        const exitDistance = Math.hypot(exitDx, exitDy);
+        const exitAngle = Math.atan2(exitDy, exitDx);
+        const relative = Math.atan2(Math.sin(exitAngle - player.angle), Math.cos(exitAngle - player.angle));
+        if (Math.abs(relative) < fov * 0.54) {
+          const x = width / 2 + Math.tan(relative) / Math.tan(fov / 2) * width / 2;
+          const wall = castMazeRay(exitAngle);
+          if (wall.distance > exitDistance - 0.55) {
+            const size = Math.min(height * 0.65, height * 0.58 / Math.max(1, exitDistance));
+            const y = half;
+            ctx.save();
+            ctx.globalAlpha = dayReady ? 0.95 : 0.37;
+            ctx.strokeStyle = dayReady ? (night ? "#a5c5ff" : "#ffe48b") : "#d99bff";
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = dayReady ? 24 : 9;
+            ctx.lineWidth = Math.max(3, size * 0.08);
+            ctx.beginPath();
+            ctx.ellipse(x, y, size * 0.38, size * 0.55, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+            if (dayReady && exitDistance < 8) {
+              ctx.fillStyle = night ? "#d9e3ff" : "#fff0a8";
+              ctx.font = "bold 15px system-ui";
+              ctx.textAlign = "center";
+              ctx.fillText("EXIT", x, y + size * 0.75);
+            }
+          }
+        }
+      }
+    }
+
+    function bindHeldControls(selector) {
+      app.querySelectorAll(selector).forEach((button) => {
+        const key = button.dataset.mazeKey || button.dataset.shooterKey;
+        const press = (event) => {
+          event.preventDefault();
+          button.setPointerCapture(event.pointerId);
+          heldKeys.add(key);
+        };
+        const release = () => heldKeys.delete(key);
+        button.addEventListener("pointerdown", press);
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("lostpointercapture", release);
+      });
+    }
+
+    function cleanupMaze() {
+      if (mazeFrame) cancelAnimationFrame(mazeFrame);
+      mazeFrame = 0;
+      mazeGame = null;
+      heldKeys.clear();
+    }
+
+    const distractionTypes = [
+      { type: "youtube", title: "YouTube", message: "A video titled “One More, Then You Write” is autoplaying." },
+      { type: "red", title: "Red invited you to play", message: "Red: “Quick match? It will only take a minute.”" },
+      { type: "blue", title: "Blue invited you to play", message: "Blue: “I found something in Fortnite!”" },
+      { type: "phone", title: "Phone notification", message: "Your phone buzzed. It refuses to say why." },
+      { type: "ad", title: "Totally Random Ad", message: "A suspicious wizard wants to sell you a third keyboard." }
+    ];
+    const bookWordBank = "somewhere the rain remembered every name and carried it beyond the quiet town where nobody asked the moon for directions".split(" ");
+
+    function prepareDistraction(event) {
+      cleanupDistraction();
+      const start = performance.now();
+      distractionGame = {
+        event,
+        startedAt: start,
+        nextSpawnAt: 8,
+        lastWordAt: start,
+        wordCount: 0,
+        writing: false,
+        wordIndex: 0,
+        finished: false
+      };
+      const button = document.getElementById("writing-button");
+      button.addEventListener("pointerdown", (pointerEvent) => {
+        pointerEvent.preventDefault();
+        if (!distractionGame || distractionGame.finished) return;
+        button.setPointerCapture(pointerEvent.pointerId);
+        distractionGame.writing = true;
+        distractionGame.lastWordAt = performance.now();
+        button.classList.add("writing");
+        button.setAttribute("aria-pressed", "true");
+        document.getElementById("distraction-status").textContent = "Fan is writing. Keep holding…";
+      });
+      const stopWriting = () => {
+        if (!distractionGame || !distractionGame.writing) return;
+        distractionGame.writing = false;
+        button.classList.remove("writing");
+        button.setAttribute("aria-pressed", "false");
+        const status = document.getElementById("distraction-status");
+        if (status) status.textContent = "Writing paused. Click a distraction or hold to continue.";
+      };
+      button.addEventListener("pointerup", stopWriting);
+      button.addEventListener("pointercancel", stopWriting);
+      button.addEventListener("lostpointercapture", stopWriting);
+      distractionInterval = window.setInterval(tickDistraction, 50);
+      distractionTimeout = window.setTimeout(finishDistraction, event.duration * 1000);
+    }
+
+    function tickDistraction() {
+      if (!distractionGame || distractionGame.finished) return;
+      const now = performance.now();
+      const elapsed = (now - distractionGame.startedAt) / 1000;
+      const remaining = Math.max(0, distractionGame.event.duration - elapsed);
+      const clock = document.getElementById("distraction-clock");
+      if (clock) clock.textContent = remaining.toFixed(1);
+      if (elapsed >= distractionGame.nextSpawnAt) {
+        const batchSize = elapsed >= 45 ? 2 + Math.floor(Math.random() * 2) : 1;
+        for (let index = 0; index < batchSize; index++) spawnDistraction();
+        const interval = elapsed < 15 ? 10 : elapsed < 30 ? 5 : elapsed < 45 ? Math.max(1.1, 4.5 - (elapsed - 30) * 0.22) : 1.35;
+        distractionGame.nextSpawnAt = elapsed + interval;
+      }
+      if (distractionGame.writing && now - distractionGame.lastWordAt >= distractionGame.event.wordInterval) {
+        distractionGame.lastWordAt = now;
+        const word = bookWordBank[distractionGame.wordIndex % bookWordBank.length];
+        distractionGame.wordIndex += 1;
+        distractionGame.wordCount += 1;
+        const output = document.getElementById("book-words");
+        if (output) output.appendChild(document.createTextNode(`${word} `));
+        const count = document.getElementById("word-count");
+        if (count) count.textContent = `${distractionGame.wordCount} / ${distractionGame.event.wordGoal}`;
+      }
+      if (elapsed >= distractionGame.event.duration) finishDistraction();
+    }
+
+    function spawnDistraction() {
+      if (!distractionGame) return;
+      const layer = document.getElementById("distraction-layer");
+      if (!layer) return;
+      const distraction = distractionTypes[Math.floor(Math.random() * distractionTypes.length)];
+      const popup = document.createElement("button");
+      popup.type = "button";
+      popup.className = `distraction-popup ${distraction.type}`;
+      const layerWidth = Math.max(1, layer.clientWidth);
+      const popupWidth = Math.min(230, layerWidth * 0.7);
+      const maxLeft = Math.max(5, 95 - popupWidth / layerWidth * 100);
+      popup.style.left = `${5 + Math.random() * maxLeft}%`;
+      popup.style.top = `${8 + Math.random() * 63}%`;
+      const title = document.createElement("strong");
+      title.textContent = distraction.title;
+      const message = document.createElement("span");
+      message.textContent = distraction.message;
+      const dismiss = document.createElement("span");
+      dismiss.textContent = "Click to dismiss";
+      popup.append(title, message, dismiss);
+      popup.addEventListener("click", () => {
+        if (!distractionGame || distractionGame.finished) return;
+        distractionGame.writing = false;
+        const writeButton = document.getElementById("writing-button");
+        if (writeButton) {
+          writeButton.classList.remove("writing");
+          writeButton.setAttribute("aria-pressed", "false");
+        }
+        popup.remove();
+        const status = document.getElementById("distraction-status");
+        if (status) status.textContent = "Distraction dismissed. Hold to get back to the book.";
+      });
+      layer.appendChild(popup);
+    }
+
+    function finishDistraction() {
+      if (!distractionGame || distractionGame.finished) return;
+      distractionGame.finished = true;
+      completeEvent();
+    }
+
+    function cleanupDistraction() {
+      if (distractionInterval) window.clearInterval(distractionInterval);
+      if (distractionTimeout) window.clearTimeout(distractionTimeout);
+      distractionInterval = 0;
+      distractionTimeout = 0;
+      distractionGame = null;
+    }
+
+    function prepareRhythm(event) {
+      cleanupRhythm();
+      const canvas = document.getElementById("rhythm-canvas");
+      rhythmGame = {
+        event,
+        canvas,
+        context: canvas.getContext("2d"),
+        active: false,
+        ended: false,
+        startedAt: 0,
+        elapsed: 0,
+        lastTime: 0,
+        nextSpawn: 0.6,
+        nextBeat: 0,
+        notes: [],
+        fanScore: 0,
+        redScore: 0,
+        misses: 0,
+        audio: null
+      };
+      document.getElementById("rhythm-start").addEventListener("click", startRhythm);
+      document.getElementById("rhythm-continue").addEventListener("click", completeEvent);
+      app.querySelectorAll("[data-rhythm-key]").forEach((button) => {
+        button.addEventListener("click", () => hitRhythmLane(Number(button.dataset.rhythmKey)));
+      });
+      drawRhythm();
+    }
+
+    function startRhythm() {
+      if (!rhythmGame || rhythmGame.active || rhythmGame.ended) return;
+      rhythmGame.active = true;
+      rhythmGame.startedAt = performance.now();
+      rhythmGame.lastTime = rhythmGame.startedAt;
+      rhythmGame.nextBeat = 0;
+      const start = document.getElementById("rhythm-start");
+      if (start) start.hidden = true;
+      createRhythmAudio();
+      rhythmTimeout = window.setTimeout(finishRhythm, rhythmGame.event.duration * 1000);
+      rhythmFrame = requestAnimationFrame(updateRhythm);
+    }
+
+    function rhythmStage(elapsed) {
+      if (elapsed < 15) return 0;
+      if (elapsed < 30) return 1;
+      if (elapsed < 45) return 2;
+      return 3;
+    }
+
+    function rhythmTempo(stage) {
+      return [92, 132, 172, 212][stage];
+    }
+
+    function spawnRhythmNotes() {
+      const stage = rhythmStage(rhythmGame.elapsed);
+      const count = stage === 0 ? 1 : stage === 1 ? 1 + Math.floor(Math.random() * 2) : stage === 2 ? 2 + Math.floor(Math.random() * 2) : 3 + Math.floor(Math.random() * 2);
+      const lanes = [0, 1, 2, 3];
+      for (let index = lanes.length - 1; index > 0; index--) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [lanes[index], lanes[swapIndex]] = [lanes[swapIndex], lanes[index]];
+      }
+      const speed = [150, 195, 245, 300][stage];
+      for (let index = 0; index < count; index++) rhythmGame.notes.push({ lane: lanes[index], y: -25, speed, fanHit: false, redHit: false });
+    }
+
+    function updateRhythm(timestamp) {
+      if (!rhythmGame || !rhythmGame.active) return;
+      rhythmGame.elapsed = (timestamp - rhythmGame.startedAt) / 1000;
+      if (rhythmGame.elapsed >= rhythmGame.event.duration) {
+        finishRhythm();
+        return;
+      }
+      const delta = Math.min((timestamp - rhythmGame.lastTime) / 1000, 0.05);
+      rhythmGame.lastTime = timestamp;
+      const stage = rhythmStage(rhythmGame.elapsed);
+      const spawnIntervals = [0.92, 0.62, 0.39, 0.23];
+      if (rhythmGame.elapsed >= rhythmGame.nextSpawn) {
+        spawnRhythmNotes();
+        rhythmGame.nextSpawn = rhythmGame.elapsed + spawnIntervals[stage];
+      }
+      const targetY = rhythmGame.canvas.height * 0.72;
+      for (let index = rhythmGame.notes.length - 1; index >= 0; index--) {
+        const note = rhythmGame.notes[index];
+        note.y += note.speed * delta;
+        if (!note.redHit && note.y >= targetY) {
+          note.redHit = true;
+          rhythmGame.redScore += 1;
+        }
+        if (!note.fanHit && note.y > targetY + 45) rhythmGame.misses += 1;
+        if (note.y > rhythmGame.canvas.height + 35) rhythmGame.notes.splice(index, 1);
+      }
+      const clock = document.getElementById("rhythm-clock");
+      const tempo = document.getElementById("rhythm-tempo");
+      const fanScore = document.getElementById("fan-rhythm-score");
+      const redScore = document.getElementById("red-rhythm-score");
+      if (clock) clock.textContent = `${Math.max(0, rhythmGame.event.duration - rhythmGame.elapsed).toFixed(1)}s`;
+      if (tempo) tempo.textContent = ["NORMAL", "FASTER", "VERY FAST", "OVERWHELMING"][stage];
+      if (fanScore) fanScore.textContent = `${rhythmGame.fanScore} · ${rhythmGame.misses} MISSED`;
+      if (redScore) redScore.textContent = rhythmGame.redScore;
+      tickRhythmAudio();
+      drawRhythm();
+      rhythmFrame = requestAnimationFrame(updateRhythm);
+    }
+
+    function hitRhythmLane(lane) {
+      if (!rhythmGame || !rhythmGame.active || lane < 0 || lane > 3) return;
+      const targetY = rhythmGame.canvas.height * 0.72;
+      let candidate = null;
+      let bestDistance = 48;
+      for (const note of rhythmGame.notes) {
+        const distance = Math.abs(note.y - targetY);
+        if (note.lane === lane && !note.fanHit && distance < bestDistance) {
+          candidate = note;
+          bestDistance = distance;
+        }
+      }
+      if (!candidate) return;
+      candidate.fanHit = true;
+      rhythmGame.fanScore += 1;
+      const score = document.getElementById("fan-rhythm-score");
+      if (score) score.textContent = `${rhythmGame.fanScore} · ${rhythmGame.misses} MISSED`;
+    }
+
+    function drawRhythm() {
+      if (!rhythmGame) return;
+      const { context: ctx, canvas, notes } = rhythmGame;
+      const width = canvas.width;
+      const height = canvas.height;
+      const targetY = height * 0.72;
+      const laneX = (side, lane) => side * (width / 2) + 52 + lane * 78;
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#171326";
+      ctx.fillRect(0, 0, width / 2, height);
+      ctx.fillStyle = "#26162a";
+      ctx.fillRect(width / 2, 0, width / 2, height);
+      ctx.fillStyle = "#d5a5ff";
+      ctx.font = "800 16px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText("FAN", width / 4, 27);
+      ctx.fillStyle = "#ffb0ca";
+      ctx.fillText("RED · PERFECT", width * 0.75, 27);
+      ctx.strokeStyle = "#ffffff23";
+      ctx.beginPath();
+      ctx.moveTo(width / 2, 0);
+      ctx.lineTo(width / 2, height);
+      ctx.stroke();
+      const symbols = ["←", "↓", "↑", "→"];
+      for (let side = 0; side < 2; side++) {
+        for (let lane = 0; lane < 4; lane++) {
+          const x = laneX(side, lane);
+          ctx.fillStyle = side === 0 ? "#d4a7ff22" : "#ff9fca22";
+          ctx.fillRect(x - 25, 45, 50, height - 60);
+          ctx.strokeStyle = side === 0 ? "#d2a4ff99" : "#ffadc988";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(x - 25, targetY - 25, 50, 50, 11);
+          ctx.stroke();
+          ctx.fillStyle = side === 0 ? "#ead7ff" : "#ffd5e4";
+          ctx.font = "bold 28px system-ui";
+          ctx.fillText(symbols[lane], x, targetY + 10);
+        }
+      }
+      for (const note of notes) {
+        for (let side = 0; side < 2; side++) {
+          const x = laneX(side, note.lane);
+          const hit = side === 0 ? note.fanHit : note.redHit;
+          ctx.fillStyle = side === 0 ? (hit ? "#87f0b5" : "#d29aff") : (hit ? "#ffb0ca" : "#ff7d9d");
+          ctx.shadowColor = ctx.fillStyle;
+          ctx.shadowBlur = hit ? 3 : 12;
+          ctx.font = "bold 31px system-ui";
+          ctx.fillText(symbols[note.lane], x, note.y);
+          ctx.shadowBlur = 0;
+        }
+      }
+    }
+
+    function createRhythmAudio() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext || !rhythmGame) return;
+      rhythmGame.audio = new AudioContext();
+      const audio = rhythmGame.audio;
+      audio.resume().catch(() => {
+        if (rhythmGame && rhythmGame.audio === audio) {
+          audio.close();
+          rhythmGame.audio = null;
+          const status = document.getElementById("rhythm-status");
+          if (status) status.textContent = "Audio is unavailable; follow the visual beat.";
+        }
+      });
+    }
+
+    function tickRhythmAudio() {
+      if (!rhythmGame || !rhythmGame.audio || rhythmGame.elapsed < rhythmGame.nextBeat) return;
+      const stage = rhythmStage(rhythmGame.elapsed);
+      const audio = rhythmGame.audio;
+      const oscillator = audio.createOscillator();
+      const gain = audio.createGain();
+      const beat = Math.floor(rhythmGame.elapsed * rhythmTempo(stage) / 60);
+      oscillator.type = beat % 4 === 0 ? "square" : "sine";
+      oscillator.frequency.value = beat % 4 === 0 ? 110 : [220, 277, 330, 277][beat % 4];
+      gain.gain.setValueAtTime(0.035, audio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.11);
+      oscillator.connect(gain);
+      gain.connect(audio.destination);
+      oscillator.start();
+      oscillator.stop(audio.currentTime + 0.12);
+      rhythmGame.nextBeat = rhythmGame.elapsed + 60 / rhythmTempo(stage);
+    }
+
+    function finishRhythm() {
+      if (!rhythmGame || rhythmGame.ended) return;
+      rhythmGame.active = false;
+      rhythmGame.ended = true;
+      rhythmGame.notes = [];
+      if (rhythmFrame) cancelAnimationFrame(rhythmFrame);
+      rhythmFrame = 0;
+      if (rhythmTimeout) window.clearTimeout(rhythmTimeout);
+      rhythmTimeout = 0;
+      const canvas = document.getElementById("rhythm-canvas");
+      const controls = app.querySelector(".rhythm-controls");
+      const status = document.getElementById("rhythm-status");
+      const defeat = document.getElementById("rhythm-defeat");
+      const start = document.getElementById("rhythm-start");
+      if (canvas) {
+        drawRhythm();
+        canvas.hidden = true;
+      }
+      if (controls) controls.hidden = true;
+      if (status) status.hidden = true;
+      if (start) start.hidden = true;
+      if (defeat) defeat.hidden = false;
+      if (rhythmGame.audio) {
+        rhythmGame.audio.close();
+        rhythmGame.audio = null;
+      }
+    }
+
+    function cleanupRhythm() {
+      if (rhythmFrame) cancelAnimationFrame(rhythmFrame);
+      if (rhythmTimeout) window.clearTimeout(rhythmTimeout);
+      rhythmFrame = 0;
+      rhythmTimeout = 0;
+      if (rhythmGame && rhythmGame.audio) rhythmGame.audio.close();
+      rhythmGame = null;
+    }
+
+    function createShooterMap() {
+      const size = 17;
+      const map = Array.from({ length: size }, (_, y) =>
+        Array.from({ length: size }, (_, x) => x === 0 || y === 0 || x === size - 1 || y === size - 1 ? 1 : 0)
+      );
+      const vertical = (x, start, end, gap) => {
+        for (let y = start; y <= end; y++) if (y !== gap) map[y][x] = 1;
+      };
+      const horizontal = (y, start, end, gap) => {
+        for (let x = start; x <= end; x++) if (x !== gap) map[y][x] = 1;
+      };
+      vertical(6, 2, 8, 5);
+      horizontal(9, 2, 6, 4);
+      vertical(11, 1, 5, 3);
+      horizontal(7, 8, 14, 10);
+      vertical(4, 11, 14, 12);
+      horizontal(12, 7, 14, 13);
+      vertical(14, 8, 11, 9);
+      map[3][8] = 1;
+      map[3][9] = 1;
+      map[4][9] = 1;
+      map[13][8] = 1;
+      return map;
+    }
+
+    function prepareShooter(event) {
+      cleanupShooter();
+      const canvas = document.getElementById("shooter-canvas");
+      shooterGame = {
+        event,
+        canvas,
+        context: canvas.getContext("2d"),
+        map: createShooterMap(),
+        player: { x: 2.5, y: 2.5, angle: 0 },
+        enemies: [
+          { x: 8.5, y: 4.5, alive: true, color: "#ff727f" },
+          { x: 13.5, y: 4.5, alive: true, color: "#ffd166" },
+          { x: 2.5, y: 13.5, alive: true, color: "#70d6ff" },
+          { x: 9.5, y: 10.5, alive: true, color: "#b388ff" },
+          { x: 14.5, y: 14.5, alive: true, color: "#83f0bd" }
+        ],
+        ammo: 6,
+        maxAmmo: 6,
+        reloadRemaining: 0,
+        active: true,
+        pointerX: null,
+        dragged: false,
+        lastTime: performance.now()
+      };
+      bindHeldControls("[data-shooter-key]");
+      canvas.addEventListener("pointerdown", (pointerEvent) => {
+        shooterGame.pointerX = pointerEvent.clientX;
+        shooterGame.dragged = false;
+        canvas.setPointerCapture(pointerEvent.pointerId);
+        pointerEvent.preventDefault();
+      });
+      canvas.addEventListener("pointermove", (pointerEvent) => {
+        if (!shooterGame || shooterGame.pointerX === null) return;
+        const dx = pointerEvent.clientX - shooterGame.pointerX;
+        if (Math.abs(dx) > 1) shooterGame.dragged = true;
+        shooterGame.player.angle += dx * 0.006;
+        shooterGame.pointerX = pointerEvent.clientX;
+      });
+      canvas.addEventListener("pointerup", () => {
+        if (!shooterGame) return;
+        if (!shooterGame.dragged) shootAtCenter();
+        shooterGame.pointerX = null;
+      });
+      canvas.addEventListener("pointercancel", () => { if (shooterGame) shooterGame.pointerX = null; });
+      document.getElementById("shooter-fire").addEventListener("click", shootAtCenter);
+      document.getElementById("shooter-reload").addEventListener("click", reloadShooter);
+      drawShooter();
+      shooterFrame = requestAnimationFrame(updateShooter);
+    }
+
+    function canStandInShooter(x, y) {
+      const map = shooterGame.map;
+      const radius = 0.19;
+      return map[Math.floor(y - radius)]?.[Math.floor(x - radius)] === 0 &&
+        map[Math.floor(y - radius)]?.[Math.floor(x + radius)] === 0 &&
+        map[Math.floor(y + radius)]?.[Math.floor(x - radius)] === 0 &&
+        map[Math.floor(y + radius)]?.[Math.floor(x + radius)] === 0;
+    }
+
+    function updateShooter(timestamp) {
+      if (!shooterGame || !shooterGame.active) return;
+      const delta = Math.min((timestamp - shooterGame.lastTime) / 1000, 0.05);
+      shooterGame.lastTime = timestamp;
+      const keys = heldKeys;
+      const turn = Number(keys.has("right") || keys.has("arrowright")) - Number(keys.has("left") || keys.has("arrowleft"));
+      shooterGame.player.angle += turn * delta * 2.1;
+      const forward = Number(keys.has("forward") || keys.has("w") || keys.has("arrowup")) -
+        Number(keys.has("back") || keys.has("s") || keys.has("arrowdown"));
+      const strafe = Number(keys.has("d")) - Number(keys.has("a"));
+      const speed = 2.8 * delta;
+      const moveX = Math.cos(shooterGame.player.angle) * forward * speed - Math.sin(shooterGame.player.angle) * strafe * speed;
+      const moveY = Math.sin(shooterGame.player.angle) * forward * speed + Math.cos(shooterGame.player.angle) * strafe * speed;
+      if (canStandInShooter(shooterGame.player.x + moveX, shooterGame.player.y)) shooterGame.player.x += moveX;
+      if (canStandInShooter(shooterGame.player.x, shooterGame.player.y + moveY)) shooterGame.player.y += moveY;
+      if (shooterGame.reloadRemaining > 0) {
+        shooterGame.reloadRemaining = Math.max(0, shooterGame.reloadRemaining - delta);
+        if (shooterGame.reloadRemaining === 0) {
+          shooterGame.ammo = shooterGame.maxAmmo;
+          updateShooterHud("Magazine reloaded.");
+        }
+      }
+      drawShooter();
+      shooterFrame = requestAnimationFrame(updateShooter);
+    }
+
+    function castShooterRay(angle, maxDistance = 32) {
+      const { map, player } = shooterGame;
+      const dx = Math.cos(angle);
+      const dy = Math.sin(angle);
+      const deltaX = Math.abs(1 / (dx || 0.00001));
+      const deltaY = Math.abs(1 / (dy || 0.00001));
+      let mapX = Math.floor(player.x);
+      let mapY = Math.floor(player.y);
+      const stepX = dx < 0 ? -1 : 1;
+      const stepY = dy < 0 ? -1 : 1;
+      let sideX = (dx < 0 ? player.x - mapX : mapX + 1 - player.x) * deltaX;
+      let sideY = (dy < 0 ? player.y - mapY : mapY + 1 - player.y) * deltaY;
+      let side = 0;
+      while (Math.min(sideX, sideY) < maxDistance) {
+        if (sideX < sideY) {
+          sideX += deltaX;
+          mapX += stepX;
+          side = 0;
+        } else {
+          sideY += deltaY;
+          mapY += stepY;
+          side = 1;
+        }
+        if (map[mapY]?.[mapX] !== 0) {
+          const distance = side === 0 ? (mapX - player.x + (1 - stepX) / 2) / dx : (mapY - player.y + (1 - stepY) / 2) / dy;
+          return { distance: Math.abs(distance), side };
+        }
+      }
+      return { distance: maxDistance, side: 0 };
+    }
+
+    function drawShooter() {
+      if (!shooterGame) return;
+      const { context: ctx, canvas, player } = shooterGame;
+      const width = canvas.width;
+      const height = canvas.height;
+      const half = height / 2;
+      const fov = Math.PI * 0.42;
+      const ceiling = ctx.createLinearGradient(0, 0, 0, half);
+      ceiling.addColorStop(0, "#11132f");
+      ceiling.addColorStop(1, "#43366c");
+      ctx.fillStyle = ceiling;
+      ctx.fillRect(0, 0, width, half);
+      const floor = ctx.createLinearGradient(0, half, 0, height);
+      floor.addColorStop(0, "#36324c");
+      floor.addColorStop(1, "#111222");
+      ctx.fillStyle = floor;
+      ctx.fillRect(0, half, width, half);
+      const depthBuffer = new Float32Array(width);
+      for (let screenX = 0; screenX < width; screenX += 2) {
+        const cameraX = (screenX / width) * 2 - 1;
+        const angle = player.angle + Math.atan(cameraX * Math.tan(fov / 2));
+        const hit = castShooterRay(angle);
+        const distance = Math.max(0.08, hit.distance * Math.cos(angle - player.angle));
+        const wallHeight = Math.min(height * 1.7, height / distance);
+        const top = half - wallHeight / 2;
+        const shade = Math.max(0.18, 1 - distance / 17) * (hit.side ? 0.72 : 1);
+        ctx.fillStyle = `rgb(${Math.floor(111 * shade)},${Math.floor(91 * shade)},${Math.floor(168 * shade)})`;
+        ctx.fillRect(screenX, top, 2.2, wallHeight);
+        ctx.fillStyle = "#d5b9ff20";
+        ctx.fillRect(screenX, top, 2.2, 3);
+        depthBuffer[screenX] = distance;
+        if (screenX + 1 < width) depthBuffer[screenX + 1] = distance;
+      }
+
+      const enemies = shooterGame.enemies
+        .filter((enemy) => enemy.alive)
+        .map((enemy) => {
+          const dx = enemy.x - player.x;
+          const dy = enemy.y - player.y;
+          const distance = Math.hypot(dx, dy);
+          const relative = Math.atan2(Math.sin(Math.atan2(dy, dx) - player.angle), Math.cos(Math.atan2(dy, dx) - player.angle));
+          return { enemy, distance, relative, depth: distance * Math.cos(relative) };
+        })
+        .filter((item) => Math.abs(item.relative) < fov / 2 && item.distance > 0.25)
+        .sort((a, b) => b.depth - a.depth);
+      for (const item of enemies) {
+        const screenX = width / 2 + Math.tan(item.relative) / Math.tan(fov / 2) * width / 2;
+        const bufferX = Math.max(0, Math.min(width - 1, Math.round(screenX)));
+        if (depthBuffer[bufferX] < item.depth - 0.18) continue;
+        const size = Math.min(height * 0.8, height * 0.68 / item.depth);
+        drawShooterEnemy(ctx, screenX, half + size * 0.3, size, item.enemy.color);
+      }
+
+      ctx.fillStyle = "#c8bddb";
+      ctx.fillRect(0, half, width, 2);
+      ctx.fillStyle = "#b5a2e3";
+      ctx.font = "11px system-ui";
+      ctx.textAlign = "left";
+      ctx.fillText("DREAM ISLAND · NORTH", 16, height - 14);
+      if (shooterGame.reloadRemaining > 0) {
+        ctx.fillStyle = "#fff0a8";
+        ctx.font = "bold 18px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("RELOADING…", width / 2, height - 32);
+      }
+      const ammo = document.getElementById("shooter-ammo");
+      if (ammo) ammo.textContent = `AMMO · ${shooterGame.ammo} / ${shooterGame.maxAmmo}`;
+    }
+
+    function drawShooterEnemy(ctx, x, feetY, size, color) {
+      const width = Math.max(12, size * 0.43);
+      ctx.save();
+      ctx.fillStyle = "#09081788";
+      ctx.beginPath();
+      ctx.ellipse(x, feetY, width * 0.72, Math.max(3, size * 0.07), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#22203a";
+      ctx.fillRect(x - width * 0.42, feetY - size * 0.36, width * 0.28, size * 0.36);
+      ctx.fillRect(x + width * 0.14, feetY - size * 0.36, width * 0.28, size * 0.36);
+      ctx.fillStyle = color;
+      ctx.fillRect(x - width / 2, feetY - size * 0.78, width, size * 0.47);
+      ctx.fillStyle = "#edc0b4";
+      ctx.beginPath();
+      ctx.arc(x, feetY - size * 0.87, width * 0.31, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#2a1b37";
+      ctx.fillRect(x - width * 0.34, feetY - size * 0.91, width * 0.68, size * 0.11);
+      ctx.restore();
+    }
+
+    function shootAtCenter() {
+      if (!shooterGame || !shooterGame.active) return;
+      if (shooterGame.reloadRemaining > 0) return;
+      if (shooterGame.ammo <= 0) {
+        updateShooterHud("Out of ammo. Reload with R or the reload button.");
+        return;
+      }
+      shooterGame.ammo -= 1;
+      const fov = Math.PI * 0.42;
+      const wallDistance = castShooterRay(shooterGame.player.angle).distance;
+      const target = shooterGame.enemies
+        .filter((enemy) => enemy.alive)
+        .map((enemy) => {
+          const dx = enemy.x - shooterGame.player.x;
+          const dy = enemy.y - shooterGame.player.y;
+          const distance = Math.hypot(dx, dy);
+          const angle = Math.atan2(Math.sin(Math.atan2(dy, dx) - shooterGame.player.angle), Math.cos(Math.atan2(dy, dx) - shooterGame.player.angle));
+          return { enemy, distance, angle };
+        })
+        .filter((item) => Math.abs(item.angle) < fov / 32 && item.distance * Math.cos(item.angle) < wallDistance)
+        .sort((a, b) => a.distance - b.distance)[0];
+      if (target) {
+        target.enemy.alive = false;
+        const remaining = shooterGame.enemies.filter((enemy) => enemy.alive).length;
+        const label = document.getElementById("shooter-remaining");
+        if (label) label.textContent = `ENEMIES LEFT · ${remaining}`;
+        if (remaining === 0) {
+          shooterGame.active = false;
+          completeEvent();
+          return;
+        }
+        updateShooterHud("Opponent tagged! They were standing very still about it.");
+      } else {
+        updateShooterHud("Miss. No enemies were harmed by that dramatic shot.");
+      }
+      drawShooter();
+    }
+
+    function reloadShooter() {
+      if (!shooterGame || !shooterGame.active || shooterGame.reloadRemaining > 0 || shooterGame.ammo === shooterGame.maxAmmo) return;
+      shooterGame.reloadRemaining = 1.15;
+      updateShooterHud("Reloading… the opponents remain politely stationary.");
+    }
+
+    function updateShooterHud(message) {
+      const status = document.getElementById("shooter-status");
+      if (status) status.textContent = message;
+    }
+
+    function cleanupShooter() {
+      if (shooterFrame) cancelAnimationFrame(shooterFrame);
+      shooterFrame = 0;
+      shooterGame = null;
+      heldKeys.clear();
+    }
+
+    function prepareBoss(event) {
+      cleanupBoss();
+      const canvas = document.getElementById("arena");
+      if (event.immortal) nightmareHits = 0;
+      boss = {
+        event,
+        canvas,
+        context: canvas.getContext("2d"),
+        x: ARENA_WIDTH / 2,
+        y: ARENA_HEIGHT / 2,
+        elapsed: 0,
+        lastTime: 0,
+        spawnIn: 0.5,
+        bullets: [],
+        lives: event.lives || 6,
+        maxLives: event.lives || 6,
+        invulnerable: 0,
+        pointerDown: false,
+        pointerTarget: null,
+        active: false,
+        audio: null,
+        nextBeat: 0,
+        beatCount: 0,
+        endTimer: 0
+      };
+      drawArena();
+      document.getElementById("battle-start").addEventListener("click", startBoss);
+      canvas.addEventListener("pointerdown", (pointerEvent) => {
+        if (!boss || !boss.active) return;
+        canvas.setPointerCapture(pointerEvent.pointerId);
+        boss.pointerDown = true;
+        setPointerTarget(pointerEvent);
+      });
+      canvas.addEventListener("pointermove", (pointerEvent) => {
+        if (boss && boss.active && boss.pointerDown) setPointerTarget(pointerEvent);
+      });
+      canvas.addEventListener("pointerup", () => { if (boss) boss.pointerDown = false; });
+      canvas.addEventListener("pointercancel", () => { if (boss) boss.pointerDown = false; });
+      app.querySelectorAll("[data-key]").forEach((button) => {
+        const key = button.dataset.key;
+        button.addEventListener("pointerdown", (pointerEvent) => {
+          pointerEvent.preventDefault();
+          button.setPointerCapture(pointerEvent.pointerId);
+          heldKeys.add(key);
+        });
+        const release = () => heldKeys.delete(key);
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("lostpointercapture", release);
+      });
+    }
+
+    function setPointerTarget(pointerEvent) {
+      if (!boss) return;
+      const bounds = boss.canvas.getBoundingClientRect();
+      boss.pointerTarget = {
+        x: (pointerEvent.clientX - bounds.left) * ARENA_WIDTH / bounds.width,
+        y: (pointerEvent.clientY - bounds.top) * ARENA_HEIGHT / bounds.height
+      };
+    }
+
+    function startBoss() {
+      if (!boss) return;
+      boss.active = true;
+      boss.lastTime = performance.now();
+      boss.nextBeat = 0;
+      document.getElementById("battle-start").disabled = true;
+      const timer = document.getElementById("timer-label");
+      if (timer) {
+        timer.textContent = boss.event.phases
+          ? `PHASE 1 · 15.0s · TOTAL ${boss.event.duration.toFixed(1)}s`
+          : `SURVIVE · ${(boss.event.duration || 10).toFixed(1)}s`;
+      }
+      if (boss.event.pattern === "nightmare") startBossMusic();
+      boss.endTimer = window.setTimeout(() => {
+        if (boss && boss.active) completeEvent();
+      }, (boss.event.duration || 10) * 1000);
+      animationFrame = requestAnimationFrame(updateBoss);
+    }
+
+    function spawnBullet(x, y, angle, speed, shape = "orb") {
+      boss.bullets.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, radius: shape === "diamond" ? 9 : 8, shape });
+    }
+
+    function spawnAttack() {
+      const event = boss.event;
+      if (event.pattern === "fan") {
+        const originX = 105 + Math.random() * (ARENA_WIDTH - 210);
+        const angle = Math.atan2(boss.y - 15, boss.x - originX);
+        for (let shot = -1; shot <= 0; shot++) spawnBullet(originX, 15, angle + shot * 0.18, 90);
+      } else if (event.pattern === "lanes") {
+        const safeLanes = getSafeLanes(boss.elapsed);
+        const fromLeft = Math.floor(boss.elapsed / 1.55) % 2 === 0;
+        for (let lane = 0; lane < 5; lane++) {
+          if (safeLanes.includes(lane)) continue;
+          const y = 55 + lane * 72;
+          spawnBullet(fromLeft ? -8 : ARENA_WIDTH + 8, y, fromLeft ? 0 : Math.PI, 110, "diamond");
+        }
+      } else if (event.pattern === "red-nightmare") {
+        const originX = ARENA_WIDTH / 2 + Math.sin(boss.elapsed * 1.7) * 145;
+        const shots = 7;
+        for (let shot = 0; shot < shots; shot++) {
+          const angle = Math.PI / 2 + (shot - (shots - 1) / 2) * 0.24;
+          spawnBullet(originX, 18, angle, 150, "diamond");
+        }
+        if (Math.floor(boss.elapsed / 1.1) % 2 === 0) {
+          const side = boss.elapsed % 2 < 1 ? -5 : ARENA_WIDTH + 5;
+          const angle = Math.atan2(boss.y - ARENA_HEIGHT * 0.55, boss.x - side);
+          spawnBullet(side, ARENA_HEIGHT * 0.55, angle, 135);
+        }
+      } else if (event.pattern === "red-sleep") {
+        const safeLane = [1, 3, 0, 4, 2][Math.floor(boss.elapsed / 0.92) % 5];
+        const fromLeft = Math.floor(boss.elapsed / 0.92) % 2 === 0;
+        for (let lane = 0; lane < 5; lane++) {
+          if (lane === safeLane) continue;
+          spawnBullet(fromLeft ? -8 : ARENA_WIDTH + 8, 48 + lane * 76, fromLeft ? 0 : Math.PI, 165, "diamond");
+        }
+        const originX = fromLeft ? ARENA_WIDTH - 20 : 20;
+        const angle = Math.atan2(boss.y - 25, boss.x - originX);
+        spawnBullet(originX, 25, angle, 115);
+      } else if (event.pattern === "weekend-father") {
+        const phase = Math.min(2, Math.floor(boss.elapsed / 15));
+        const count = [3, 5, 8][phase];
+        const speed = [126, 164, 205][phase];
+        const originX = 70 + Math.random() * (ARENA_WIDTH - 140);
+        const aim = Math.atan2(boss.y - 5, boss.x - originX);
+        const spread = [0.2, 0.24, 0.28][phase];
+        for (let shot = 0; shot < count; shot++) {
+          spawnBullet(originX, -8, aim + (shot - (count - 1) / 2) * spread, speed, phase > 0 ? "diamond" : "orb");
+        }
+        if (phase > 0) {
+          const side = Math.floor(boss.elapsed * 1.7) % 2 === 0 ? -8 : ARENA_WIDTH + 8;
+          const sideAim = Math.atan2(boss.y - ARENA_HEIGHT * 0.55, boss.x - side);
+          spawnBullet(side, ARENA_HEIGHT * 0.55, sideAim, speed * 0.82, "diamond");
+        }
+      } else if (event.pattern === "nightmare") {
+        const intensity = Math.min(1, boss.elapsed / event.duration);
+        const stage = Math.floor(boss.elapsed / 12);
+        const count = 3 + Math.floor(intensity * 7);
+        const speed = 105 + intensity * 112;
+        const mode = Math.floor(boss.elapsed / 10) % 4;
+        if (mode === 1) {
+          const laneCount = 5 + Math.floor(intensity * 5);
+          const gap = Math.floor((boss.elapsed * 0.7) % laneCount);
+          for (let lane = 0; lane < laneCount; lane++) {
+            if (lane === gap) continue;
+            const fromLeft = Math.floor(boss.elapsed / 1.8) % 2 === 0;
+            const y = 18 + (lane + 0.5) * (ARENA_HEIGHT - 36) / laneCount;
+            spawnBullet(fromLeft ? -8 : ARENA_WIDTH + 8, y, fromLeft ? 0 : Math.PI, speed * 0.86, "diamond");
+          }
+        } else {
+          const originX = 45 + ((boss.elapsed * 87) % (ARENA_WIDTH - 90));
+          const aim = Math.atan2(boss.y - 10, boss.x - originX);
+          const spread = 0.12 + intensity * 0.18;
+          for (let shot = 0; shot < count; shot++) {
+            spawnBullet(originX, -8, aim + (shot - (count - 1) / 2) * spread, speed, stage > 2 ? "diamond" : "orb");
+          }
+          if (mode === 3) {
+            const side = boss.elapsed % 20 < 10 ? -8 : ARENA_WIDTH + 8;
+            const sideAim = Math.atan2(boss.y - ARENA_HEIGHT * 0.48, boss.x - side);
+            spawnBullet(side, ARENA_HEIGHT * 0.48, sideAim, speed * 0.92, "diamond");
+          }
+        }
+      }
+    }
+
+    function bossAttackInterval() {
+      if (boss.event.pattern === "weekend-father") return [1.1, 0.76, 0.48][Math.min(2, Math.floor(boss.elapsed / 15))];
+      if (boss.event.pattern === "nightmare") return Math.max(0.3, 1.02 - boss.elapsed * 0.008);
+      if (boss.event.pattern === "fan") return 1.5;
+      if (boss.event.pattern === "lanes") return 1.55;
+      if (boss.event.pattern === "red-nightmare") return 1.05;
+      return 0.92;
+    }
+
+    function startBossMusic() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) {
+        const phase = document.getElementById("boss-phase");
+        if (phase) phase.textContent = "AUDIO UNAVAILABLE · VISUAL INTENSITY INCREASES";
+        return;
+      }
+      boss.audio = new AudioContext();
+      const audio = boss.audio;
+      audio.resume().catch(() => {
+        if (boss && boss.audio === audio) {
+          audio.close();
+          boss.audio = null;
+          const phase = document.getElementById("boss-phase");
+          if (phase) phase.textContent = "AUDIO BLOCKED · VISUAL INTENSITY INCREASES";
+        }
+      });
+    }
+
+    function tickBossMusic() {
+      if (!boss || !boss.audio || boss.elapsed < boss.nextBeat) return;
+      const intensity = Math.min(1, boss.elapsed / boss.event.duration);
+      const tempo = 72 + Math.floor(intensity * 112);
+      const audio = boss.audio;
+      const oscillator = audio.createOscillator();
+      const gain = audio.createGain();
+      const notes = [110, 147, 165, 196, 220, 247, 262, 294];
+      oscillator.type = boss.beatCount % 4 === 0 ? "sawtooth" : "square";
+      oscillator.frequency.value = notes[boss.beatCount % notes.length] * (1 + intensity * 0.35);
+      gain.gain.setValueAtTime(0.025 + intensity * 0.035, audio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.16);
+      oscillator.connect(gain);
+      gain.connect(audio.destination);
+      oscillator.start();
+      oscillator.stop(audio.currentTime + 0.17);
+      boss.beatCount += 1;
+      boss.nextBeat = boss.elapsed + 60 / tempo;
+    }
+
+    function updateBoss(timestamp) {
+      if (!boss || !boss.active) return;
+      const delta = Math.min((timestamp - boss.lastTime) / 1000, 0.04);
+      boss.lastTime = timestamp;
+      boss.elapsed += delta;
+      boss.invulnerable = Math.max(0, boss.invulnerable - delta);
+      const duration = boss.event.duration || 10;
+      if (boss.elapsed >= duration) {
+        completeEvent();
+        return;
+      }
+
+      const horizontal = Number(heldKeys.has("right") || heldKeys.has("d") || heldKeys.has("arrowright")) -
+        Number(heldKeys.has("left") || heldKeys.has("a") || heldKeys.has("arrowleft"));
+      const vertical = Number(heldKeys.has("down") || heldKeys.has("s") || heldKeys.has("arrowdown")) -
+        Number(heldKeys.has("up") || heldKeys.has("w") || heldKeys.has("arrowup"));
+      if (boss.pointerDown && boss.pointerTarget) {
+        boss.x += (boss.pointerTarget.x - boss.x) * Math.min(1, delta * 9);
+        boss.y += (boss.pointerTarget.y - boss.y) * Math.min(1, delta * 9);
+      } else {
+        const length = Math.hypot(horizontal, vertical) || 1;
+        const speed = boss.event.pattern.startsWith("red-") ? 255 : 235;
+        boss.x += horizontal / length * speed * delta;
+        boss.y += vertical / length * speed * delta;
+      }
+      boss.x = Math.max(PLAYER_RADIUS + 3, Math.min(ARENA_WIDTH - PLAYER_RADIUS - 3, boss.x));
+      boss.y = Math.max(PLAYER_RADIUS + 3, Math.min(ARENA_HEIGHT - PLAYER_RADIUS - 3, boss.y));
+
+      boss.spawnIn -= delta;
+      if (boss.spawnIn <= 0) {
+        spawnAttack();
+        boss.spawnIn = bossAttackInterval();
+      }
+      for (let index = boss.bullets.length - 1; index >= 0; index--) {
+        const bullet = boss.bullets[index];
+        bullet.x += bullet.vx * delta;
+        bullet.y += bullet.vy * delta;
+        const hit = Math.hypot(bullet.x - boss.x, bullet.y - boss.y) < bullet.radius + PLAYER_RADIUS - 2;
+        if (hit && boss.event.immortal) {
+          nightmareHits += 1;
+          boss.invulnerable = 0.25;
+          const hitLabel = document.getElementById("nightmare-hit-count");
+          if (hitLabel) hitLabel.textContent = `HITS · ${nightmareHits}`;
+          boss.bullets.splice(index, 1);
+          continue;
+        }
+        if (hit && boss.invulnerable === 0) {
+          boss.lives -= 1;
+          boss.invulnerable = 0.9;
+          const livesLabel = document.getElementById("lives-label");
+          if (livesLabel) {
+            livesLabel.textContent = `${"❤ ".repeat(boss.lives)}${"♡ ".repeat(boss.maxLives - boss.lives)}`.trim();
+            livesLabel.setAttribute("aria-label", `${boss.lives} hearts remaining`);
+          }
+          if (boss.lives === 0) {
+            showGameOver(boss.event);
+            return;
+          }
+          boss.bullets.splice(index, 1);
+          continue;
+        }
+        if (bullet.x < -25 || bullet.x > ARENA_WIDTH + 25 || bullet.y < -25 || bullet.y > ARENA_HEIGHT + 25) boss.bullets.splice(index, 1);
+      }
+      drawArena();
+      const timer = document.getElementById("timer-label");
+      if (timer && boss.event.phases) {
+        const phaseIndex = Math.min(boss.event.phases.length - 1, Math.floor(boss.elapsed / 15));
+        const phaseRemaining = (phaseIndex + 1) * 15 - boss.elapsed;
+        timer.textContent = `PHASE ${phaseIndex + 1} · ${Math.max(0, phaseRemaining).toFixed(1)}s · TOTAL ${Math.max(0, duration - boss.elapsed).toFixed(1)}s`;
+        const phase = document.getElementById("boss-phase");
+        if (phase) phase.textContent = `PHASE ${phaseIndex + 1} · ${boss.event.phases[phaseIndex]}`;
+      } else if (timer) {
+        timer.textContent = `SURVIVE · ${Math.max(0, duration - boss.elapsed).toFixed(1)}s`;
+        if (boss.event.pattern === "nightmare") {
+          const phase = document.getElementById("boss-phase");
+          const intensity = Math.round(Math.min(1, boss.elapsed / duration) * 100);
+          const tempo = 72 + Math.floor((boss.elapsed / duration) * 112);
+          if (phase && !phase.textContent.startsWith("AUDIO")) phase.textContent = `NIGHTMARE INTENSITY · ${intensity}% · ${tempo} BPM`;
+        }
+      }
+      tickBossMusic();
+      animationFrame = requestAnimationFrame(updateBoss);
+    }
+
+    function drawArena() {
+      if (!boss) return;
+      const context = boss.context;
+      context.clearRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+      context.fillStyle = "#11162f";
+      context.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+      context.strokeStyle = "#9caeff12";
+      context.lineWidth = 1;
+      for (let x = 20; x < ARENA_WIDTH; x += 40) {
+        context.beginPath(); context.moveTo(x, 0); context.lineTo(x, ARENA_HEIGHT); context.stroke();
+      }
+      for (let y = 20; y < ARENA_HEIGHT; y += 40) {
+        context.beginPath(); context.moveTo(0, y); context.lineTo(ARENA_WIDTH, y); context.stroke();
+      }
+      if (boss.event.pattern === "lanes") {
+        const safeLanes = getSafeLanes(boss.elapsed);
+        context.fillStyle = "#81edc70d";
+        for (const lane of safeLanes) context.fillRect(0, 55 + lane * 72 - 24, ARENA_WIDTH, 48);
+      } else if (boss.event.pattern === "red-sleep") {
+        const safeLane = [1, 3, 0, 4, 2][Math.floor(boss.elapsed / 0.92) % 5];
+        context.fillStyle = "#81edc716";
+        context.fillRect(0, 48 + safeLane * 76 - 24, ARENA_WIDTH, 48);
+      }
+      for (const bullet of boss.bullets) {
+        context.save();
+        context.translate(bullet.x, bullet.y);
+        context.rotate(bullet.shape === "diamond" ? Math.PI / 4 : 0);
+        context.fillStyle = bullet.shape === "diamond" ? "#ff9cce" : "#ffd98b";
+        context.shadowColor = context.fillStyle;
+        context.shadowBlur = 12;
+        context.beginPath();
+        if (bullet.shape === "diamond") context.rect(-7, -7, 14, 14);
+        else context.arc(0, 0, bullet.radius, 0, Math.PI * 2);
+        context.fill();
+        context.restore();
+      }
+      drawHeart(context, boss.x, boss.y);
+      if (!boss.active) {
+        context.fillStyle = "#e9e9ff";
+        context.textAlign = "center";
+        context.font = "700 20px system-ui, sans-serif";
+        context.fillText("READY WHEN YOU ARE", ARENA_WIDTH / 2, 45);
+      }
+    }
+
+    function getSafeLanes(elapsed) {
+      const gaps = [[1, 2], [3, 4], [0, 1], [2, 3], [4, 0]];
+      return gaps[Math.floor(elapsed / 1.55) % gaps.length];
+    }
+
+    function drawHeart(context, x, y) {
+      context.save();
+      context.translate(x, y);
+      context.scale(0.82, 0.82);
+      context.beginPath();
+      context.moveTo(0, 9);
+      context.bezierCurveTo(-3, 5, -14, -2, -14, -9);
+      context.bezierCurveTo(-14, -19, -1, -20, 0, -10);
+      context.bezierCurveTo(1, -20, 14, -19, 14, -9);
+      context.bezierCurveTo(14, -2, 3, 5, 0, 9);
+      context.closePath();
+      context.fillStyle = boss.invulnerable > 0 && Math.floor(boss.elapsed * 14) % 2 === 0 ? "#ffffff" : "#ff557f";
+      context.shadowColor = "#ff557f";
+      context.shadowBlur = 15;
+      context.fill();
+      context.restore();
+    }
+
+    function prepareShopping(event) {
+      cleanupShopping();
+      shoppingGame = { event, round: 0, aisle: 0, collected: new Set(), mistakes: 0, startedAt: performance.now() };
+      renderShoppingStage();
+      if (updateShoppingTimer()) shoppingInterval = window.setInterval(updateShoppingTimer, 100);
+    }
+
+    function updateShoppingTimer() {
+      if (!shoppingGame) return false;
+      const remaining = Math.max(0, shoppingGame.event.duration - (performance.now() - shoppingGame.startedAt) / 1000);
+      const clock = document.getElementById("shopping-time");
+      if (clock) clock.textContent = `${remaining.toFixed(1)}s`;
+      if (remaining <= 0) {
+        const event = shoppingGame.event;
+        const messages = event.gameOver;
+        showGameOver(event, messages[Math.floor(Math.random() * messages.length)]);
+        return false;
+      }
+      return true;
+    }
+
+    function selectShoppingProduct(name) {
+      if (!shoppingGame || !updateShoppingTimer()) return;
+      const round = SHOPPING_ROUNDS[shoppingGame.round];
+      const status = document.getElementById("shopping-status");
+      if (!round.items.some((item) => item.name === name)) {
+        shoppingGame.mistakes += 1;
+        const mistakesLabel = document.getElementById("shopping-mistakes");
+        if (mistakesLabel) mistakesLabel.textContent = `MISTAKES · ${shoppingGame.mistakes} / 3`;
+        if (shoppingGame.mistakes >= 3) {
+          const messages = shoppingGame.event.gameOver;
+          showGameOver(shoppingGame.event, messages[Math.floor(Math.random() * messages.length)]);
+          return;
+        }
+        if (status) status.textContent = `Wrong product: ${name}. Check the label carefully.`;
+        return;
+      }
+      if (shoppingGame.collected.has(name)) return;
+      shoppingGame.collected.add(name);
+      if (shoppingGame.collected.size === round.items.length) {
+        shoppingGame.round += 1;
+        if (shoppingGame.round >= SHOPPING_ROUNDS.length) {
+          completeEvent();
+          return;
+        }
+        shoppingGame.aisle = 0;
+        shoppingGame.collected = new Set();
+      }
+      renderShoppingStage();
+    }
+
+    function cleanupShopping() {
+      if (shoppingInterval) window.clearInterval(shoppingInterval);
+      shoppingInterval = 0;
+      shoppingGame = null;
+    }
+
+    function prepareDrive(event) {
+      cleanupDrive();
+      const canvas = document.getElementById("drive-canvas");
+      driveGame = {
+        event,
+        canvas,
+        context: canvas.getContext("2d"),
+        elapsed: 0,
+        startedAt: 0,
+        lastTime: 0,
+        spawnIn: 1.5,
+        playerLane: 0,
+        obstacles: [],
+        active: false
+      };
+      drawDrive();
+      document.getElementById("drive-start").addEventListener("click", startDrive);
+      app.querySelectorAll("[data-drive-key]").forEach((button) => {
+        const key = `drive-${button.dataset.driveKey}`;
+        button.addEventListener("pointerdown", (pointerEvent) => {
+          pointerEvent.preventDefault();
+          button.setPointerCapture(pointerEvent.pointerId);
+          heldKeys.add(key);
+        });
+        const release = () => heldKeys.delete(key);
+        button.addEventListener("pointerup", release);
+        button.addEventListener("pointercancel", release);
+        button.addEventListener("lostpointercapture", release);
+      });
+    }
+
+    function startDrive() {
+      if (!driveGame || driveGame.active) return;
+      driveGame.active = true;
+      driveGame.startedAt = performance.now();
+      driveGame.lastTime = driveGame.startedAt;
+      document.getElementById("drive-start").disabled = true;
+      driveFrame = requestAnimationFrame(updateDrive);
+    }
+
+    function spawnDriveObstacle() {
+      const lane = Math.floor(Math.random() * 3) - 1;
+      driveGame.obstacles.push({
+        lane,
+        depth: 0.03,
+        icon: ["🚧", "🪵", "🛞", "🦌"][Math.floor(Math.random() * 4)]
+      });
+    }
+
+    function updateDrive(timestamp) {
+      if (!driveGame || !driveGame.active) return;
+      const delta = Math.min((timestamp - driveGame.lastTime) / 1000, 0.05);
+      driveGame.lastTime = timestamp;
+      driveGame.elapsed = (timestamp - driveGame.startedAt) / 1000;
+      if (driveGame.elapsed >= driveGame.event.duration) {
+        completeEvent();
+        return;
+      }
+      const steering = Number(heldKeys.has("drive-right") || heldKeys.has("d") || heldKeys.has("arrowright")) -
+        Number(heldKeys.has("drive-left") || heldKeys.has("a") || heldKeys.has("arrowleft"));
+      const curve = Math.sin(driveGame.elapsed * (0.28 + driveGame.elapsed / driveGame.event.duration * 0.2));
+      const drift = curve * (0.1 + driveGame.elapsed / driveGame.event.duration * 0.3);
+      driveGame.playerLane = Math.max(-1, Math.min(1, driveGame.playerLane + (steering * (0.92 + driveGame.elapsed * 0.012) - drift) * delta));
+      driveGame.spawnIn -= delta;
+      if (driveGame.spawnIn <= 0) {
+        spawnDriveObstacle();
+        driveGame.spawnIn = Math.max(0.66, 1.5 - driveGame.elapsed * 0.017);
+      }
+      const obstacleSpeed = 0.39 + driveGame.elapsed * 0.006;
+      for (let index = driveGame.obstacles.length - 1; index >= 0; index--) {
+        const obstacle = driveGame.obstacles[index];
+        obstacle.depth += obstacleSpeed * delta;
+        if (obstacle.depth >= 0.92) {
+          if (Math.abs(driveGame.playerLane - obstacle.lane) < 0.43) {
+            showGameOver(driveGame.event);
+            return;
+          }
+          driveGame.obstacles.splice(index, 1);
+        }
+      }
+      drawDrive();
+      const time = document.getElementById("drive-time");
+      const condition = document.getElementById("drive-condition");
+      const status = document.getElementById("drive-status");
+      if (time) time.textContent = `${Math.max(0, driveGame.event.duration - driveGame.elapsed).toFixed(1)}s`;
+      if (condition) condition.textContent = driveGame.elapsed >= 12 ? "NIGHT DRIVE · HEAVY RAIN" : "NIGHT DRIVE · DRY";
+      if (status) {
+        const turn = Math.sin(driveGame.elapsed * 0.43);
+        status.textContent = driveGame.elapsed < 12
+          ? "Steer with ← / → or A / D. The road is calm for now."
+          : turn > 0.2 ? "A sharp right bend! Rain is reducing visibility." : turn < -0.2 ? "A sharp left bend! Rain is reducing visibility." : "Rain is falling. Keep watching the road.";
+      }
+      driveFrame = requestAnimationFrame(updateDrive);
+    }
+
+    function drawDrive() {
+      if (!driveGame) return;
+      const { context: ctx, canvas, elapsed } = driveGame;
+      const width = canvas.width;
+      const height = canvas.height;
+      const horizon = 82;
+      const centerAt = (depth) => width / 2 +
+        Math.sin(elapsed * 0.43 + depth * 1.6) * depth * 112 +
+        Math.sin(elapsed * 0.19) * depth * 32;
+      const roadWidthAt = (depth) => 38 + depth * 340;
+      ctx.clearRect(0, 0, width, height);
+      const sky = ctx.createLinearGradient(0, 0, 0, horizon);
+      sky.addColorStop(0, "#070a18");
+      sky.addColorStop(1, "#283451");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, width, horizon);
+      ctx.fillStyle = "#d9e7ff";
+      for (let index = 0; index < 36; index++) {
+        const x = (index * 191 + 57) % width;
+        const y = (index * 43 + 17) % (horizon - 10);
+        ctx.globalAlpha = 0.35 + (index % 4) * 0.14;
+        ctx.fillRect(x, y, 2, 2);
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "#17233a";
+      ctx.fillRect(0, horizon, width, height - horizon);
+      ctx.beginPath();
+      for (let step = 0; step <= 20; step++) {
+        const depth = step / 20;
+        const y = horizon + depth * (height - horizon);
+        const x = centerAt(depth) - roadWidthAt(depth);
+        if (step === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      for (let step = 20; step >= 0; step--) {
+        const depth = step / 20;
+        const y = horizon + depth * (height - horizon);
+        ctx.lineTo(centerAt(depth) + roadWidthAt(depth), y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = "#30333d";
+      ctx.fill();
+      ctx.strokeStyle = "#d9d4b8";
+      ctx.lineWidth = 3;
+      for (const edge of [-1, 1]) {
+        ctx.beginPath();
+        for (let step = 0; step <= 20; step++) {
+          const depth = step / 20;
+          const x = centerAt(depth) + edge * roadWidthAt(depth);
+          const y = horizon + depth * (height - horizon);
+          if (step === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      for (const laneDivider of [-1 / 3, 1 / 3]) {
+        for (let marker = 0; marker < 9; marker++) {
+          const depth = ((marker / 9 + elapsed * 0.38) % 1);
+          const y = horizon + depth * (height - horizon);
+          const x = centerAt(depth) + laneDivider * roadWidthAt(depth);
+          const size = 1 + depth * 4;
+          ctx.fillStyle = "#e8dcae";
+          ctx.fillRect(x - size / 2, y, size, 15 * depth + 2);
+        }
+      }
+      for (const obstacle of driveGame.obstacles) {
+        const depth = Math.min(1, obstacle.depth);
+        const x = centerAt(depth) + obstacle.lane * roadWidthAt(depth) * 0.56;
+        const y = horizon + depth * (height - horizon);
+        ctx.font = `${18 + depth * 44}px system-ui`;
+        ctx.textAlign = "center";
+        ctx.fillText(obstacle.icon, x, y);
+      }
+      const carX = centerAt(1) + driveGame.playerLane * roadWidthAt(1) * 0.56;
+      ctx.save();
+      ctx.translate(carX, height - 23);
+      ctx.fillStyle = "#0b111c";
+      ctx.beginPath();
+      ctx.moveTo(-44, 23); ctx.lineTo(-34, -22); ctx.lineTo(-21, -37);
+      ctx.lineTo(21, -37); ctx.lineTo(34, -22); ctx.lineTo(44, 23);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#557ba8";
+      ctx.beginPath();
+      ctx.moveTo(-27, -21); ctx.lineTo(-17, -33); ctx.lineTo(17, -33); ctx.lineTo(27, -21);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#ffedb2";
+      ctx.fillRect(-34, 12, 12, 5); ctx.fillRect(22, 12, 12, 5);
+      ctx.restore();
+      if (elapsed >= 12) {
+        const intensity = Math.min(0.44, 0.08 + (elapsed - 12) / driveGame.event.duration * 0.42);
+        ctx.fillStyle = `rgba(15, 23, 40, ${intensity})`;
+        ctx.fillRect(0, horizon, width, height - horizon);
+        ctx.strokeStyle = `rgba(197, 220, 255, ${Math.min(0.6, intensity + 0.12)})`;
+        ctx.lineWidth = 1;
+        for (let drop = 0; drop < 75; drop++) {
+          const x = (drop * 137 + elapsed * 190) % width;
+          const y = (drop * 61 + elapsed * 320) % height;
+          ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 5, y + 13); ctx.stroke();
+        }
+      }
+      if (!driveGame.active) {
+        ctx.fillStyle = "#07101dcc";
+        ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = "#eff3ff";
+        ctx.textAlign = "center";
+        ctx.font = "800 27px system-ui, sans-serif";
+        ctx.fillText("READY TO DRIVE", width / 2, height / 2);
+      }
+    }
+
+    function cleanupDrive() {
+      if (driveFrame) cancelAnimationFrame(driveFrame);
+      driveFrame = 0;
+      driveGame = null;
+      heldKeys.clear();
+    }
+
+    function prepareRunner(event) {
+      cleanupRunner();
+      const canvas = document.getElementById("runner-canvas");
+      const world = createThreeRunner(canvas, event);
+      if (!world) {
+        const note = document.getElementById("runner-engine-note");
+        note.textContent = "Three.js or WebGL is unavailable; using the built-in perspective fallback.";
+        note.hidden = false;
+      }
+      runner = {
+        event,
+        canvas,
+        context: world ? null : canvas.getContext("2d"),
+        world,
+        lane: 1,
+        targetLane: 1,
+        elapsed: 0,
+        lastTime: 0,
+        spawnIn: 1.4,
+        jump: 0,
+        slide: 0,
+        obstacles: [],
+        pointerStart: null,
+        active: false
+      };
+      drawRunner();
+      document.getElementById("runner-start").addEventListener("click", startRunner);
+      canvas.addEventListener("pointerdown", (pointerEvent) => {
+        if (runner) runner.pointerStart = { x: pointerEvent.clientX, y: pointerEvent.clientY };
+      });
+      canvas.addEventListener("pointerup", (pointerEvent) => {
+        if (!runner || !runner.pointerStart) return;
+        const dx = pointerEvent.clientX - runner.pointerStart.x;
+        const dy = pointerEvent.clientY - runner.pointerStart.y;
+        runner.pointerStart = null;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
+        if (Math.abs(dx) > Math.abs(dy)) moveRunner(dx < 0 ? "left" : "right");
+        else moveRunner(dy < 0 ? "jump" : "slide");
+      });
+      app.querySelectorAll("[data-runner-action]").forEach((button) => {
+        button.addEventListener("click", () => moveRunner(button.dataset.runnerAction));
+      });
+    }
+
+    function startRunner() {
+      if (!runner) return;
+      runner.active = true;
+      runner.lastTime = performance.now();
+      document.getElementById("runner-start").disabled = true;
+      runnerFrame = requestAnimationFrame(updateRunner);
+    }
+
+    function moveRunner(action) {
+      if (!runner || !runner.active) return;
+      if (action === "left") runner.targetLane = Math.max(0, runner.targetLane - 1);
+      else if (action === "right") runner.targetLane = Math.min(2, runner.targetLane + 1);
+      else if (action === "jump" && runner.jump <= 0.05) runner.jump = 0.75;
+      else if (action === "slide" && runner.slide <= 0.05) runner.slide = 0.8;
+    }
+
+    function spawnRunnerObstacle() {
+      const roll = Math.random();
+      const kind = runner.event.environment === "night"
+        ? roll < 0.5 ? "train" : roll < 0.76 ? "overhead" : "barrier"
+        : roll < 0.38 ? "train" : roll < 0.7 ? "barrier" : "overhead";
+      const lane = Math.floor(Math.random() * 3);
+      const mesh = runner.world ? createRunnerObstacleMesh(kind, runner.event.environment) : null;
+      if (mesh) runner.world.scene.add(mesh);
+      runner.obstacles.push({ kind, lane, z: 1, passed: false, mesh });
+    }
+
+    function updateRunner(timestamp) {
+      if (!runner || !runner.active) return;
+      const delta = Math.min((timestamp - runner.lastTime) / 1000, 0.05);
+      runner.lastTime = timestamp;
+      runner.elapsed += delta;
+      const remaining = runner.event.duration - runner.elapsed;
+      if (remaining <= 0) {
+        completeEvent();
+        return;
+      }
+      runner.lane += (runner.targetLane - runner.lane) * Math.min(1, delta * 11);
+      runner.jump = Math.max(0, runner.jump - delta);
+      runner.slide = Math.max(0, runner.slide - delta);
+
+      runner.spawnIn -= delta;
+      if (runner.spawnIn <= 0) {
+        spawnRunnerObstacle();
+        const difficulty = runner.event.difficulty;
+        runner.spawnIn = Math.max(0.9, (1.55 - runner.elapsed * 0.008) / difficulty);
+      }
+
+      const speed = (0.32 + runner.elapsed * 0.002) * runner.event.difficulty;
+      for (let index = runner.obstacles.length - 1; index >= 0; index--) {
+        const obstacle = runner.obstacles[index];
+        obstacle.z -= speed * delta;
+        if (obstacle.mesh) {
+          obstacle.mesh.position.x = (obstacle.lane - 1) * 2.35;
+          obstacle.mesh.position.z = -45 + (1 - obstacle.z) * 45;
+        }
+        if (!obstacle.passed && obstacle.z <= 0.105) {
+          obstacle.passed = true;
+          const sameLane = Math.abs(runner.lane - obstacle.lane) < 0.42;
+          const jumping = runner.jump > 0.12;
+          const sliding = runner.slide > 0.12;
+          const collision = sameLane && (
+            obstacle.kind === "train" ||
+            obstacle.kind === "barrier" && !jumping ||
+            obstacle.kind === "overhead" && !sliding
+          );
+          if (collision) {
+            showGameOver(runner.event);
+            return;
+          }
+        }
+        if (obstacle.z < -0.08) {
+          if (obstacle.mesh) {
+            runner.world.scene.remove(obstacle.mesh);
+            disposeThreeObject(obstacle.mesh);
+          }
+          runner.obstacles.splice(index, 1);
+        }
+      }
+      updateThreeRunner(delta);
+      drawRunner();
+      const timeLabel = document.getElementById("runner-time");
+      const laneLabel = document.getElementById("runner-distance");
+      if (timeLabel) timeLabel.textContent = `${Math.max(0, remaining).toFixed(1)} seconds`;
+      if (laneLabel) laneLabel.textContent = `LANE ${Math.round(runner.lane) + 1} · ${runner.event.environment === "night" ? "NIGHT RUN" : "DAY RUN"}`;
+      runnerFrame = requestAnimationFrame(updateRunner);
+    }
+
+    function drawRunner() {
+      if (!runner) return;
+      if (runner.world) {
+        runner.world.renderer.render(runner.world.scene, runner.world.camera);
+        return;
+      }
+      const { context: ctx, event } = runner;
+      const width = runner.canvas.width;
+      const height = runner.canvas.height;
+      const horizon = 104;
+      const center = width / 2;
+      ctx.clearRect(0, 0, width, height);
+
+      const sky = ctx.createLinearGradient(0, 0, 0, horizon);
+      if (event.environment === "night") {
+        sky.addColorStop(0, "#111b43");
+        sky.addColorStop(1, "#59446e");
+      } else {
+        sky.addColorStop(0, "#60c9f1");
+        sky.addColorStop(1, "#d4f4ff");
+      }
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, width, horizon);
+      ctx.fillStyle = event.environment === "night" ? "#f8e9ba" : "#fff3ad";
+      ctx.beginPath();
+      ctx.arc(event.environment === "night" ? 675 : 675, event.environment === "night" ? 40 : 47, 21, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = event.environment === "night" ? "#202a44" : "#4b9d77";
+      ctx.fillRect(0, horizon, width, height - horizon);
+      for (let side = 0; side < 2; side++) {
+        for (let building = 0; building < 8; building++) {
+          const x = side === 0 ? building * 35 : width - building * 37 - 28;
+          const buildingHeight = 28 + (building * 19) % 70;
+          ctx.fillStyle = event.environment === "night" ? (building % 2 ? "#25304f" : "#2e3658") : (building % 2 ? "#79b795" : "#6aa684");
+          ctx.fillRect(x, horizon - buildingHeight + 10, 28, buildingHeight);
+          if (event.environment === "night" && building % 2 === 0) {
+            ctx.fillStyle = "#ffdd8a";
+            ctx.fillRect(x + 7, horizon - buildingHeight + 22, 4, 6);
+            ctx.fillRect(x + 17, horizon - buildingHeight + 36, 4, 6);
+          }
+        }
+      }
+
+      const roadNear = 335;
+      ctx.beginPath();
+      ctx.moveTo(center - 33, horizon);
+      ctx.lineTo(center + 33, horizon);
+      ctx.lineTo(center + roadNear, height);
+      ctx.lineTo(center - roadNear, height);
+      ctx.closePath();
+      ctx.fillStyle = event.environment === "night" ? "#343545" : "#525664";
+      ctx.fill();
+
+      const project = (z, lane) => {
+        const depth = 1 - z;
+        const y = horizon + depth * (height - horizon);
+        const laneOffset = (lane - 1) * (27 + depth * 190);
+        return { x: center + laneOffset, y, scale: 0.12 + depth * 1.08 };
+      };
+      ctx.strokeStyle = event.environment === "night" ? "#9aa6c9" : "#d9d4bd";
+      ctx.lineWidth = 3;
+      for (let laneEdge = -1; laneEdge <= 1; laneEdge++) {
+        const nearX = center + laneEdge * roadNear;
+        const farX = center + laneEdge * 33;
+        ctx.beginPath(); ctx.moveTo(farX, horizon); ctx.lineTo(nearX, height); ctx.stroke();
+      }
+      ctx.strokeStyle = event.environment === "night" ? "#adb5d1" : "#e5e0cd";
+      ctx.lineWidth = 4;
+      for (const track of [-0.66, 0, 0.66]) {
+        const nearX = center + track * roadNear;
+        const farX = center + track * 33;
+        ctx.beginPath(); ctx.moveTo(farX - 7, horizon); ctx.lineTo(nearX - 7, height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(farX + 7, horizon); ctx.lineTo(nearX + 7, height); ctx.stroke();
+      }
+      const phase = (runner.elapsed * 0.8) % 1;
+      for (let tie = 0; tie < 14; tie++) {
+        const z = 1 - ((tie / 14 + phase) % 1);
+        const point = project(z, 1);
+        const spread = 38 + (1 - z) * 265;
+        ctx.strokeStyle = event.environment === "night" ? "#6a5360" : "#927450";
+        ctx.lineWidth = Math.max(1, point.scale * 3);
+        ctx.beginPath(); ctx.moveTo(center - spread, point.y); ctx.lineTo(center + spread, point.y); ctx.stroke();
+      }
+
+      for (const obstacle of runner.obstacles) drawRunnerObstacle(ctx, obstacle, project);
+      const playerY = height - 33 - (runner.jump > 0 ? Math.sin((0.75 - runner.jump) / 0.75 * Math.PI) * 88 : 0);
+      const playerX = center + (runner.lane - 1) * 190;
+      drawRunnerPlayer(ctx, playerX, playerY, runner.slide > 0);
+      if (!runner.active) {
+        ctx.fillStyle = "#10142bdd";
+        ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.font = "800 27px system-ui, sans-serif";
+        ctx.fillText(event.environment === "night" ? "NIGHT RUN" : "DAY SHIFT EXPRESS", center, 200);
+        ctx.font = "600 15px system-ui, sans-serif";
+        ctx.fillText("Three lanes · Watch the rails", center, 230);
+      }
+    }
+
+    function drawRunnerObstacle(ctx, obstacle, project) {
+      if (obstacle.z > 1 || obstacle.z < -0.02) return;
+      const point = project(obstacle.z, obstacle.lane);
+      const size = point.scale;
+      if (obstacle.kind === "train") {
+        const trainW = 48 * size;
+        const trainH = 100 * size;
+        const gradient = ctx.createLinearGradient(point.x - trainW / 2, 0, point.x + trainW / 2, 0);
+        gradient.addColorStop(0, runner.event.environment === "night" ? "#38416d" : "#526b8b");
+        gradient.addColorStop(.5, runner.event.environment === "night" ? "#7478a6" : "#9ab2c8");
+        gradient.addColorStop(1, runner.event.environment === "night" ? "#30395f" : "#475d7a");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(point.x - trainW / 2, point.y - trainH, trainW, trainH);
+        ctx.fillStyle = runner.event.environment === "night" ? "#f5cc8c" : "#b8efff";
+        ctx.fillRect(point.x - trainW * .31, point.y - trainH * .8, trainW * .24, trainH * .2);
+        ctx.fillRect(point.x + trainW * .07, point.y - trainH * .8, trainW * .24, trainH * .2);
+        ctx.fillStyle = "#ffdf80";
+        ctx.fillRect(point.x - trainW * .32, point.y - trainH * .13, trainW * .64, Math.max(2, 4 * size));
+      } else if (obstacle.kind === "barrier") {
+        const obstacleW = 52 * size;
+        const obstacleH = 36 * size;
+        ctx.fillStyle = "#e86548";
+        ctx.fillRect(point.x - obstacleW / 2, point.y - obstacleH, obstacleW, obstacleH);
+        ctx.fillStyle = "#ffd589";
+        ctx.fillRect(point.x - obstacleW / 2, point.y - obstacleH * .6, obstacleW, obstacleH * .22);
+        ctx.fillStyle = "#654636";
+        ctx.fillRect(point.x - obstacleW * .4, point.y - 5 * size, 6 * size, 8 * size);
+        ctx.fillRect(point.x + obstacleW * .3, point.y - 5 * size, 6 * size, 8 * size);
+      } else {
+        const beamW = 59 * size;
+        ctx.fillStyle = "#cf5f71";
+        ctx.fillRect(point.x - beamW / 2, point.y - 67 * size, beamW, 12 * size);
+        ctx.fillStyle = "#f6b6a2";
+        ctx.fillRect(point.x - beamW / 2, point.y - 67 * size, 6 * size, 12 * size);
+        ctx.fillRect(point.x + beamW / 2 - 6 * size, point.y - 67 * size, 6 * size, 12 * size);
+      }
+    }
+
+    function drawRunnerPlayer(ctx, x, y, sliding) {
+      ctx.save();
+      ctx.translate(x, y);
+      if (sliding) ctx.rotate(-0.2);
+      ctx.fillStyle = "#11142b55";
+      ctx.beginPath(); ctx.ellipse(0, 0, 24, 8, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#f2c5a5";
+      ctx.beginPath(); ctx.arc(0, sliding ? -15 : -47, 13, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#d94e64";
+      ctx.fillRect(-15, sliding ? -19 : -36, 30, sliding ? 13 : 30);
+      ctx.fillStyle = "#212a49";
+      ctx.fillRect(-14, sliding ? -7 : -7, 11, 8);
+      ctx.fillRect(3, sliding ? -7 : -7, 11, 8);
+      ctx.restore();
+    }
+
+    function cleanupRunner() {
+      if (runnerFrame) cancelAnimationFrame(runnerFrame);
+      runnerFrame = 0;
+      if (runner && runner.world) {
+        window.removeEventListener("resize", runner.world.resize);
+        runner.world.renderer.dispose();
+        disposeThreeObject(runner.world.scene);
+      }
+      runner = null;
+    }
+
+    function createThreeRunner(canvas, event) {
+      if (!window.THREE) return null;
+      const THREE = window.THREE;
+      const context = canvas.getContext("webgl2") || canvas.getContext("webgl");
+      if (!context) return null;
+      const renderer = new THREE.WebGLRenderer({ canvas, context, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      const scene = new THREE.Scene();
+      const night = event.environment === "night";
+      scene.background = new THREE.Color(night ? "#111934" : "#8ddfff");
+      scene.fog = new THREE.Fog(night ? "#262941" : "#b5dce7", 38, 105);
+      const camera = new THREE.PerspectiveCamera(57, 800 / 450, 0.1, 130);
+      camera.position.set(0, 5.2, 9.5);
+      camera.lookAt(0, 1.15, -16);
+      scene.add(new THREE.HemisphereLight(night ? "#95a9ff" : "#e7faff", night ? "#22243c" : "#71855f", night ? 1.05 : 1.25));
+      const sun = new THREE.DirectionalLight(night ? "#a4b8ff" : "#fff3d4", night ? 1.1 : 1.6);
+      sun.position.set(-5, 12, 8);
+      sun.castShadow = true;
+      scene.add(sun);
+
+      const material = (color, roughness = 0.82, metalness = 0) => new THREE.MeshStandardMaterial({ color, roughness, metalness });
+      const ground = new THREE.Mesh(new THREE.BoxGeometry(10.5, 0.25, 115), material(night ? "#343748" : "#555960"));
+      ground.position.set(0, -0.18, -43);
+      ground.receiveShadow = true;
+      scene.add(ground);
+      const sleeperMaterial = material(night ? "#625354" : "#8f7353");
+      const railMaterial = material(night ? "#abb3d0" : "#c8d2d7", 0.34, 0.72);
+      const sleepers = [];
+      for (let index = 0; index < 31; index++) {
+        const sleeper = new THREE.Mesh(new THREE.BoxGeometry(8.7, 0.13, 0.32), sleeperMaterial);
+        sleeper.position.set(0, -0.015, 8 - index * 2.8);
+        sleeper.receiveShadow = true;
+        scene.add(sleeper);
+        sleepers.push(sleeper);
+      }
+      for (let lane = 0; lane < 3; lane++) {
+        const centerX = (lane - 1) * 2.35;
+        for (const offset of [-0.72, 0.72]) {
+          const rail = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.2, 115), railMaterial);
+          rail.position.set(centerX + offset, 0.04, -43);
+          rail.castShadow = true;
+          scene.add(rail);
+        }
+      }
+
+      const scenery = [];
+      for (let side = -1; side <= 1; side += 2) {
+        for (let index = 0; index < 12; index++) {
+          const z = 5 - index * 8;
+          const x = side * (7.2 + (index % 3) * 1.1);
+          const group = new THREE.Group();
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, 1.2, 6), material(night ? "#393247" : "#71553a"));
+          trunk.position.y = 0.6;
+          trunk.castShadow = true;
+          group.add(trunk);
+          const crown = new THREE.Mesh(new THREE.ConeGeometry(1.05, 2.5, 7), material(night ? "#303b5b" : index % 2 ? "#4c9a70" : "#60a97a"));
+          crown.position.y = 2.15;
+          crown.castShadow = true;
+          group.add(crown);
+          if (night && index % 3 === 0) {
+            const lamp = new THREE.PointLight("#ffd58b", 1.7, 12);
+            lamp.position.set(-side * 1.1, 3.2, 0);
+            group.add(lamp);
+          }
+          group.position.set(x, 0, z);
+          scene.add(group);
+          scenery.push(group);
+        }
+      }
+
+      const player = new THREE.Group();
+      const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.82, 0.42), material("#dc5366"));
+      shirt.position.y = 1.18;
+      shirt.castShadow = true;
+      player.add(shirt);
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 12), material("#f1c5a5"));
+      head.position.y = 1.88;
+      head.castShadow = true;
+      player.add(head);
+      const legs = [];
+      for (const side of [-1, 1]) {
+        const leg = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.65, 0.27), material("#27314e"));
+        leg.position.set(side * 0.18, 0.47, 0);
+        leg.castShadow = true;
+        player.add(leg);
+        legs.push(leg);
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.64, 0.2), material("#f1c5a5"));
+        arm.position.set(side * 0.43, 1.18, 0);
+        arm.rotation.z = side * -0.18;
+        player.add(arm);
+      }
+      player.position.set(0, 0, 0);
+      scene.add(player);
+
+      const resize = () => {
+        if (runner && runner.world?.renderer !== renderer) return;
+        const width = Math.max(1, canvas.clientWidth);
+        const height = Math.max(1, canvas.clientHeight);
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      };
+      resize();
+      window.addEventListener("resize", resize);
+      return { renderer, scene, camera, player, legs, sleepers, scenery, resize };
+    }
+
+    function createRunnerObstacleMesh(kind, environment) {
+      const THREE = window.THREE;
+      const group = new THREE.Group();
+      const night = environment === "night";
+      const material = (color, metalness = 0) => new THREE.MeshStandardMaterial({ color, roughness: 0.72, metalness });
+      const box = (width, height, depth, color, y) => {
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material(color, kind === "train" ? 0.24 : 0));
+        mesh.position.y = y;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        group.add(mesh);
+        return mesh;
+      };
+      if (kind === "train") {
+        if (night) {
+          box(2.05, 3.35, 4.2, "#343a5c", 1.68);
+          box(1.65, 0.6, 0.09, "#929de0", 2.55).position.z = 2.15;
+          box(1.6, 0.16, 0.16, "#c276b3", 3.42);
+          for (const side of [-0.62, 0.62]) box(0.25, 0.2, 0.1, "#ffe49a", 0.52).position.set(side, 0.52, 2.17);
+          box(0.8, 0.12, 0.1, "#a9bcff", 0.2).position.z = 2.18;
+        } else {
+          box(1.85, 3.55, 4.5, "#678ca3", 1.78);
+          box(1.48, 0.8, 0.08, "#b7edff", 2.75).position.z = 2.29;
+          box(0.66, 0.18, 0.09, "#ffd78a", 0.45).position.z = 2.3;
+        }
+      } else if (kind === "barrier") {
+        box(1.8, 0.72, 0.48, "#e96748", 0.54);
+        box(1.84, 0.16, 0.5, "#ffe098", 0.6).position.z = 0.02;
+        for (const side of [-0.65, 0.65]) box(0.14, 0.48, 0.15, "#584638", 0.22).position.x = side;
+      } else {
+        box(2.1, 0.26, 0.32, night ? "#df758f" : "#d86370", 2.65);
+        for (const side of [-0.92, 0.92]) box(0.15, 2.45, 0.2, "#7b6073", 1.25).position.x = side;
+      }
+      return group;
+    }
+
+    function updateThreeRunner(delta) {
+      if (!runner || !runner.world) return;
+      const world = runner.world;
+      const speed = 11 * runner.event.difficulty;
+      for (const sleeper of world.sleepers) {
+        sleeper.position.z += speed * delta;
+        if (sleeper.position.z > 10) sleeper.position.z -= 86.8;
+      }
+      for (const prop of world.scenery) {
+        prop.position.z += speed * delta * 0.72;
+        if (prop.position.z > 9) prop.position.z -= 96;
+      }
+      world.player.position.x += ((runner.targetLane - 1) * 2.35 - world.player.position.x) * Math.min(1, delta * 11);
+      const jumpPhase = runner.jump > 0 ? (0.75 - runner.jump) / 0.75 : 0;
+      world.player.position.y = runner.jump > 0 ? Math.sin(jumpPhase * Math.PI) * 1.45 : 0;
+      world.player.scale.y = runner.slide > 0 ? 0.48 : 1;
+      world.legs.forEach((leg, index) => {
+        leg.rotation.x = runner.slide > 0 ? 0.1 : Math.sin(runner.elapsed * 15 + index * Math.PI) * 0.38;
+      });
+    }
+
+    function disposeThreeObject(root) {
+      if (!root || !root.traverse) return;
+      root.traverse((object) => {
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) {
+          for (const material of Array.isArray(object.material) ? object.material : [object.material]) material.dispose();
+        }
+      });
+    }
+
+
+    function prepareMultitask(event) {
+      renderComputerPanel();
+
+      document.getElementById("phone-button").addEventListener("click", () => {
+        if (!multi || multi.ended) return;
+        multi.phoneDeadline = performance.now() + 10000;
+        updateMultiClocks();
+      });
+      app.querySelectorAll("[data-answer]").forEach((button) => {
+        button.addEventListener("click", () => {
+          answerQuiz(Number(button.dataset.answer));
+        });
+      });
+      app.querySelectorAll("[data-woman-answer]").forEach((button) => {
+        button.addEventListener("click", () => triggerWomanEscape(button.dataset.womanAnswer));
+      });
+      multiInterval = window.setInterval(tickMultitask, 50);
+      updateMultiClocks();
+    }
+
+    function answerComputer(selected) {
+      if (!multi || multi.ended || multi.computerDone) return;
+      if (multi.currentProblem.choices[selected] !== multi.currentProblem.solution) {
+        showGameOver(multi.event, multi.event.gameOver.computer);
+        return;
+      }
+      multi.computerSolved += 1;
+      multi.computerDone = multi.computerSolved >= multi.event.computerGoal;
+      if (!multi.computerDone) multi.currentProblem = chooseComputerProblem(multi.event);
+      renderComputerPanel();
+      checkMultitaskComplete();
+    }
+
+    function tickMultitask() {
+      if (!multi || multi.ended) return;
+      const now = performance.now();
+      const mainRemaining = 60 - (now - multi.startedAt) / 1000;
+      if (mainRemaining <= 0) {
+        showGameOver(multi.event, multi.event.gameOver.timeout);
+        return;
+      }
+
+      if (now >= multi.phoneDeadline) {
+        showGameOver(multi.event, multi.event.gameOver.phone);
+        return;
+      }
+
+      if (multi.quizIndex < multi.event.questions.length && now >= multi.quizDeadline) {
+        if (multi.quizAnswered === null) {
+          showGameOver(multi.event, multi.event.gameOver.quiz);
+          return;
+        }
+        multi.quizIndex += 1;
+        multi.quizAnswered = null;
+        if (multi.quizIndex < multi.event.questions.length) {
+          multi.quizDeadline = now + 10000;
+          const panel = document.getElementById("quiz-panel");
+          if (panel) {
+            panel.innerHTML = `
+              <div class="challenge-head"><h3>C. Multiple-choice quiz</h3><span class="challenge-clock" id="quiz-clock">10s</span></div>
+              <p class="quiz-progress">Question ${multi.quizIndex + 1} of ${multi.event.questions.length}</p>
+              <p class="quiz-question">${multi.event.questions[multi.quizIndex].question}</p>
+              <div class="quiz-options">${multi.event.questions[multi.quizIndex].answers.map((answer, index) => `<button class="quiz-option" type="button" data-answer="${index}">${String.fromCharCode(65 + index)}. ${answer}</button>`).join("")}</div>
+              <p class="quiz-state">Choose carefully. The next question waits for this timer.</p>`;
+            panel.querySelectorAll("[data-answer]").forEach((button) => {
+              button.addEventListener("click", () => answerQuiz(Number(button.dataset.answer)));
+            });
+          }
+        } else {
+          const panel = document.getElementById("quiz-panel");
+          if (panel) panel.innerHTML = '<div class="challenge-head"><h3>C. Multiple-choice quiz</h3><span class="challenge-clock">DONE</span></div><p class="quiz-progress">All six questions answered. The microwave grudgingly respects you.</p>';
+        }
+      }
+
+      if (!multi.womanTriggered && mainRemaining <= 30) {
+        multi.womanTriggered = true;
+        const overlay = document.getElementById("woman-overlay");
+        if (overlay) overlay.hidden = false;
+      }
+      updateMultiClocks();
+      checkMultitaskComplete();
+    }
+
+    function answerQuiz(selected) {
+      if (!multi || multi.quizAnswered !== null || multi.quizIndex >= multi.event.questions.length) return;
+      if (selected !== multi.event.questions[multi.quizIndex].correct) {
+        showGameOver(multi.event, multi.event.gameOver.quiz);
+        return;
+      }
+      if (multi.quizIndex === multi.event.questions.length - 1) {
+        multi.quizIndex += 1;
+        const panel = document.getElementById("quiz-panel");
+        if (panel) panel.innerHTML = '<div class="challenge-head"><h3>C. Multiple-choice quiz</h3><span class="challenge-clock">DONE</span></div><p class="quiz-progress">All six questions answered. The microwave grudgingly respects you.</p>';
+        checkMultitaskComplete();
+        return;
+      }
+      multi.quizAnswered = selected;
+      app.querySelectorAll("[data-answer]").forEach((option) => { option.disabled = true; });
+      const status = document.getElementById("quiz-state");
+      if (status) status.textContent = "Correct. Hold on until the full ten-second round ends...";
+      app.querySelector(`[data-answer="${selected}"]`)?.classList.add("selected-correct");
+    }
+
+    function updateMultiClocks() {
+      if (!multi || multi.ended) return;
+      const now = performance.now();
+      const mainRemaining = Math.max(0, 60 - (now - multi.startedAt) / 1000);
+      const mainClock = document.getElementById("main-clock");
+      const phoneClock = document.getElementById("phone-clock");
+      const quizClock = document.getElementById("quiz-clock");
+      if (mainClock) mainClock.textContent = `${Math.ceil(mainRemaining)}s`;
+      if (phoneClock) phoneClock.textContent = Math.max(0, (multi.phoneDeadline - now) / 1000).toFixed(1);
+      if (quizClock && multi.quizIndex < multi.event.questions.length) {
+        quizClock.textContent = `${Math.max(0, (multi.quizDeadline - now) / 1000).toFixed(1)}s`;
+      }
+    }
+
+    function triggerWomanEscape(answer) {
+      if (!multi || multi.womanDone) return;
+      const attempt = multi;
+      const dialogue = document.getElementById("woman-dialogue");
+      const scene = document.getElementById("woman-scene");
+      const sprite = document.getElementById("woman-sprite");
+      const options = document.getElementById("woman-options");
+      if (dialogue) dialogue.textContent = `Red: "${answer}"`;
+      if (options) options.innerHTML = '<p class="event-copy">Woman: "AAAAAAAAAAAAAAAAAAAAAA!"</p>';
+      if (scene) scene.classList.add("screaming");
+      attempt.womanTimers.push(window.setTimeout(() => {
+        if (multi !== attempt || attempt.ended) return;
+        if (sprite) sprite.classList.add("running");
+      }, 450));
+      attempt.womanTimers.push(window.setTimeout(() => {
+        if (multi !== attempt || attempt.ended) return;
+        const overlay = document.getElementById("woman-overlay");
+        if (overlay) overlay.hidden = true;
+        attempt.womanDone = true;
+        checkMultitaskComplete();
+      }, 2400));
+    }
+
+    function checkMultitaskComplete() {
+      if (!multi || multi.ended) return;
+      const quizDone = multi.quizIndex >= multi.event.questions.length;
+      if (multi.computerDone && quizDone && multi.womanDone) {
+        multi.ended = true;
+        window.clearInterval(multiInterval);
+        multiInterval = 0;
+        completeEvent();
+      }
+    }
+
+    function startWait(event) {
+      const started = performance.now();
+      waitInterval = window.setInterval(() => {
+        const remaining = Math.max(0, 10 - (performance.now() - started) / 1000);
+        const count = document.getElementById("wait-count");
+        if (count) count.textContent = remaining.toFixed(1);
+        if (remaining <= 0) {
+          window.clearInterval(waitInterval);
+          waitInterval = 0;
+          const message = document.getElementById("wait-message");
+          if (message) message.textContent = "He came the second you had to go.........";
+          waitTimeout = window.setTimeout(completeEvent, 2000);
+        }
+      }, 50);
+    }
+
+    function cleanupMultitask() {
+      if (multiInterval) window.clearInterval(multiInterval);
+      if (multi) multi.womanTimers.forEach((timer) => window.clearTimeout(timer));
+      if (waitInterval) window.clearInterval(waitInterval);
+      if (waitTimeout) window.clearTimeout(waitTimeout);
+      multiInterval = 0;
+      waitInterval = 0;
+      waitTimeout = 0;
+      multi = null;
+    }
+
+    function cleanupBoss() {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      if (boss && boss.endTimer) window.clearTimeout(boss.endTimer);
+      if (boss && boss.audio) boss.audio.close();
+      animationFrame = 0;
+      heldKeys.clear();
+      boss = null;
+    }
+
+    function cleanupMinigames() {
+      cleanupBoss();
+      cleanupRunner();
+      cleanupMultitask();
+      cleanupMaze();
+      cleanupDistraction();
+      cleanupRhythm();
+      cleanupShooter();
+      cleanupShopping();
+      cleanupDrive();
+    }
+
+    function completeEvent() {
+      cleanupMinigames();
+      eventIndex += 1;
+      saveProgress();
+      if (eventIndex >= character.events.length) screen = "complete";
+      else screen = "event";
+      render();
+    }
+
+    function showGameOver(event, message) {
+      cleanupMinigames();
+      screen = "gameover";
+      screenEvent = { ...event, gameOver: message || event.gameOver };
+      render();
+    }
+
+    let screenEvent = null;
+    function renderGameOver() {
+      app.innerHTML = `
+        <section class="panel journey">
+          <div class="progress-track" aria-hidden="true"><div class="progress-fill" style="width:${(eventIndex / character.events.length) * 100}%"></div></div>
+          <section class="event-card game-over" style="margin-top:22px">
+            <div class="event-emoji" aria-hidden="true">✕</div>
+            <h1>GAME OVER</h1>
+            <p class="event-copy">${screenEvent.gameOver}</p>
+            <div class="button-row">
+              <button class="button pink" id="retry-button" type="button">Retry this event</button>
+              <button class="button" id="gameover-menu" type="button">Return to main menu</button>
+            </div>
+          </section>
+        </section>`;
+      document.getElementById("retry-button").addEventListener("click", () => {
+        screen = "event";
+        render();
+      });
+      document.getElementById("gameover-menu").addEventListener("click", goToMenu);
+    }
+
+    function renderComplete() {
+      const nightmareSummary = selectedCharacterId === "weekend-blue"
+        ? `<p class="nightmare-hit-summary" id="nightmare-hit-summary">Nightmare Battle hits received: <strong>${nightmareHits}</strong></p>`
+        : "";
+      app.innerHTML = `
+        <section class="panel complete-card">
+          <div class="complete-star" aria-hidden="true">🌙</div>
+          <span class="eyebrow">DAY COMPLETE</span>
+          <h1>${character.name}'s life is complete!</h1>
+          <p>${character.name} made it through all ${character.events.length} events. The day is over; the consequences are tomorrow's problem.</p>
+          ${nightmareSummary}
+          <button class="button primary event-action" id="complete-menu" type="button">Return to main menu</button>
+        </section>`;
+      document.getElementById("complete-menu").addEventListener("click", goToMenu);
+    }
+
+    function goToMenu() {
+      saveProgress();
+      cleanupMinigames();
+      screen = "menu";
+      render();
+    }
+
+    menuButton.addEventListener("click", goToMenu);
+    document.addEventListener("keydown", (keyboardEvent) => {
+      const key = keyboardEvent.key.toLowerCase();
+      if (screen !== "event" || keyboardEvent.target.matches("input, textarea")) return;
+      if (rhythmGame && rhythmGame.active) {
+        const lanes = { arrowleft: 0, arrowdown: 1, arrowup: 2, arrowright: 3 };
+        if (Object.prototype.hasOwnProperty.call(lanes, key)) {
+          keyboardEvent.preventDefault();
+          if (!keyboardEvent.repeat) hitRhythmLane(lanes[key]);
+        }
+        return;
+      }
+      if (mazeGame && mazeGame.active) {
+        if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(key)) {
+          keyboardEvent.preventDefault();
+          heldKeys.add(key);
+        }
+        return;
+      }
+      if (shooterGame && shooterGame.active) {
+        if (key === " " && !keyboardEvent.repeat) {
+          keyboardEvent.preventDefault();
+          shootAtCenter();
+        } else if (key === "r" && !keyboardEvent.repeat) {
+          keyboardEvent.preventDefault();
+          reloadShooter();
+        } else if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(key)) {
+          keyboardEvent.preventDefault();
+          heldKeys.add(key);
+        }
+        return;
+      }
+      if (driveGame && driveGame.active) {
+        if (["arrowleft", "arrowright", "a", "d"].includes(key)) {
+          keyboardEvent.preventDefault();
+          heldKeys.add(key);
+        }
+        return;
+      }
+      if (runner && runner.active) {
+        const actions = {
+          a: "left", arrowleft: "left", d: "right", arrowright: "right",
+          w: "jump", arrowup: "jump", s: "slide", arrowdown: "slide"
+        };
+        if (actions[key]) {
+          keyboardEvent.preventDefault();
+          moveRunner(actions[key]);
+        }
+        return;
+      }
+      if (!boss || !boss.active) return;
+      if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(key)) {
+        keyboardEvent.preventDefault();
+        heldKeys.add(key);
+      }
+    });
+    document.addEventListener("keyup", (keyboardEvent) => heldKeys.delete(keyboardEvent.key.toLowerCase()));
+    window.addEventListener("blur", () => {
+      heldKeys.clear();
+      if (distractionGame) {
+        distractionGame.writing = false;
+        const button = document.getElementById("writing-button");
+        if (button) {
+          button.classList.remove("writing");
+          button.setAttribute("aria-pressed", "false");
+        }
+      }
+    });
+    render();
+  </script>
+</body>
+</html>
