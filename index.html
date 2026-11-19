@@ -271,6 +271,132 @@
     .battle-start { margin-top: 15px; }
     #skip-fight { display: block; margin: 12px auto 0; }
 
+    body.allegations-playing {
+      height: 100vh;
+      height: 100dvh;
+      min-height: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      padding: 0;
+    }
+    body.allegations-playing .menu-button {
+      position: fixed;
+      z-index: 1002;
+      top: max(10px, env(safe-area-inset-top));
+      right: 12px;
+    }
+    .allegations-fullscreen {
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      border: 0;
+      border-radius: 0;
+      background: #101329;
+      box-shadow: none;
+    }
+    .allegations-fullscreen .journey-head,
+    .allegations-fullscreen > .progress-track,
+    .allegations-fullscreen .event-emoji,
+    .allegations-fullscreen .event-copy { display: none; }
+    .allegations-fullscreen .event-content,
+    .allegations-fullscreen .event-card {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      animation: none;
+    }
+    .allegations-fullscreen .event-card h2 {
+      position: absolute;
+      z-index: 2;
+      top: 14px;
+      left: 50%;
+      margin: 0;
+      color: #ffe4e8;
+      font-size: 15px;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+    .allegations-fullscreen .arena-wrap {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+    .allegations-fullscreen .arena {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      touch-action: none;
+    }
+    .allegations-fullscreen .arena-status {
+      position: absolute;
+      z-index: 2;
+      top: max(52px, calc(env(safe-area-inset-top) + 44px));
+      left: 12px;
+      right: 12px;
+      margin: 0;
+      padding: 8px 12px;
+      border: 1px solid #ffffff20;
+      border-radius: 12px;
+      background: #090c1dd9;
+      color: #f2f4ff;
+      pointer-events: none;
+    }
+    .allegations-fullscreen .arena-status span { color: #f2f4ff; }
+    .allegations-fullscreen .arena-status span:last-child { color: #ffe48a; }
+    .allegations-fullscreen .arena-controls {
+      position: absolute;
+      z-index: 2;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      left: 12px;
+      margin: 0;
+    }
+    .allegations-fullscreen .dpad button { background: #11152fc9; }
+    .allegations-fullscreen .control-tip { display: none; }
+    .allegations-fullscreen .battle-start {
+      position: absolute;
+      z-index: 3;
+      top: 50%;
+      left: 50%;
+      margin: 0;
+      transform: translate(-50%, -50%);
+    }
+    .allegations-fullscreen .battle-start:disabled { display: none; }
+    @media (max-width: 520px) {
+      .allegations-fullscreen .event-card h2 {
+        right: 12px;
+        left: 12px;
+        top: 16px;
+        padding-right: min(46vw, 170px);
+        font-size: clamp(10px, 3.2vw, 13px);
+        text-align: center;
+      }
+      body.allegations-playing .menu-button {
+        max-width: 46vw;
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+    }
+
     .chest-grid {
       display: grid;
       width: min(100%, 590px);
@@ -367,10 +493,11 @@
       border-radius: 20px;
       background: #10142b80;
       text-align: left;
-      cursor: pointer;
+      cursor: default;
       transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
     }
     .character-choice:hover { transform: translateY(-3px); border-color: #9deaff99; background: #20284d; }
+    .character-choice:focus-within { border-color: #9deaff99; }
     .character-choice.red-choice:hover { border-color: #ff858599; }
     .character-choice.weekend-choice:hover { border-color: #83baff99; }
     .character-choice-top { display: flex; width: 100%; align-items: center; gap: 13px; }
@@ -391,6 +518,61 @@
     .character-choice .difficulty { margin-top: 14px; }
     .character-choice .difficulty.hard { border-color: #ff9a9a55; background: #ff71801c; color: #ffb1ab; }
     .character-choice .difficulty.weekend-difficulty { border-color: #83baff55; background: #64a7ff1c; color: #b9d8ff; }
+    .character-choice.trump-choice:hover { border-color: #ff9a5c99; }
+    .character-choice .trump-avatar {
+      display: grid;
+      width: 60px;
+      height: 60px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 19px;
+      background: linear-gradient(145deg, #ffc17a, #e46c31);
+      color: #351c15;
+      font-size: 32px;
+      box-shadow: 0 7px 20px #ff8b4933;
+    }
+    .character-choice .difficulty.trump-difficulty { border-color: #ff9a5c55; background: #ff8b491c; color: #ffd0a8; }
+    .trump-theme .journey-head h1, .trump-theme .event-card h2 { color: #ffc18e; }
+    .trump-theme .step-pill { border-color: #ff9a5c55; background: #ff8b491c; color: #ffd0a8; }
+    .trump-theme .progress-fill { background: linear-gradient(90deg, #ff9c54, #f25462); }
+    .trump-theme .arena { border-color: #ff8b5c; }
+    .trump-theme .arena-status { justify-content: space-between; }
+    .trump-theme .arena-status span { color: #ffb585; }
+    .trump-minigame { border-color: #ff9a5c3c; }
+    .rename-card { width: min(100%, 620px); margin: 20px auto 0; padding: 22px; border: 1px solid #ffbd7b55; border-radius: 18px; background: #14172e; text-align: center; }
+    .rename-progress, .news-progress, .award-progress { color: #ffcf9f; font-size: 12px; font-weight: 850; letter-spacing: .06em; }
+    .rename-original { margin-top: 15px; color: #fff0df; font-size: clamp(25px, 7vw, 38px); font-weight: 950; letter-spacing: .08em; }
+    .rename-prompt { margin-top: 15px; color: var(--muted); font-size: 13px; }
+    .rename-preview { min-height: 34px; margin-top: 13px; color: #ffe0bb; font-size: clamp(17px, 4vw, 23px); font-weight: 850; overflow-wrap: anywhere; }
+    .rename-input { width: min(100%, 390px); min-height: 48px; margin-top: 12px; padding: 0 13px; border: 1px solid #ffbd7b66; border-radius: 12px; background: #0e1127; color: #fff4e8; font-size: 17px; text-align: center; }
+    .rename-win { margin-top: 22px; color: #a9f2c5; font-size: clamp(19px, 5vw, 28px); font-weight: 950; line-height: 1.4; }
+    .news-bulletin { width: min(100%, 680px); margin: 20px auto; padding: clamp(18px, 4vw, 30px); border: 1px solid #ff6d6d66; border-radius: 16px; background: linear-gradient(145deg, #321d31, #15182e); text-align: left; }
+    .news-kicker { color: #ff8585; font-size: 12px; font-weight: 950; letter-spacing: .12em; }
+    .news-article { margin-top: 16px; color: #fff5e9; font-family: Georgia, serif; font-size: clamp(21px, 5vw, 32px); line-height: 1.45; }
+    .news-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 18px; }
+    .news-actions .button { min-width: 150px; }
+    .nuke-stage { position: relative; display: grid; min-height: 410px; place-items: center; overflow: hidden; margin: 20px auto 0; border: 1px solid #ff626255; border-radius: 20px; background: radial-gradient(ellipse at center, #71233355, #101326 68%); }
+    .nuke-timer { position: absolute; top: 17px; color: #ffe2aa; font-size: clamp(27px, 7vw, 43px); font-weight: 950; font-variant-numeric: tabular-nums; }
+    .nuke-button { width: clamp(180px, 48vw, 285px); aspect-ratio: 1; margin-top: 45px; border: 8px solid #ffb09c; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #ff9696, #ed263a 48%, #8b101e 100%); box-shadow: 0 13px 0 #5c0d1a, 0 24px 60px #ef2e5066, inset 0 5px 17px #ffffff55; color: white; cursor: pointer; font-size: clamp(52px, 14vw, 84px); text-shadow: 0 3px 8px #4c0010; transition: transform 160ms ease, filter 160ms ease; animation: nukePulse 1.25s ease-in-out infinite alternate; }
+    .nuke-button:hover { filter: brightness(1.13); transform: scale(1.035); }
+    @keyframes nukePulse { to { box-shadow: 0 13px 0 #5c0d1a, 0 24px 72px #ff385b99, inset 0 5px 17px #ffffff66; } }
+    .nuke-taunts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 17px; margin: 18px 0 21px; color: #ffc7a6; font-size: clamp(12px, 3vw, 16px); font-weight: 850; }
+    .award-stage { width: min(100%, 800px); margin: 20px auto 0; }
+    .award-title { margin-top: 10px; color: #ffe49a; font-size: clamp(19px, 5vw, 26px); font-weight: 950; line-height: 1.35; }
+    .award-people { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .award-person { display: grid; min-height: 155px; align-content: center; justify-items: center; gap: 9px; padding: 12px 7px; border: 1px solid #ffffff27; border-radius: 15px; background: #11152b; color: #f5f1ff; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
+    .award-person:hover { transform: translateY(-4px); border-color: #ffca7b99; background: #302541; }
+    .award-person .person-emoji { font-size: clamp(35px, 8vw, 57px); }
+    .award-person strong { font-size: clamp(11px, 2.7vw, 14px); }
+    .award-person.trump-recipient { border-color: #ffcc6d; background: linear-gradient(145deg, #6f4a24, #34233c); animation: trophyGlow 500ms ease-in-out 2 alternate; }
+    .award-person.disappointed { filter: grayscale(.8); opacity: .63; }
+    @keyframes trophyGlow { to { transform: scale(1.04); box-shadow: 0 0 28px #ffdc7988; } }
+    .award-celebration { min-height: 25px; margin-top: 12px; color: #ffe49a; font-size: 14px; font-weight: 900; }
+    .trump-hp { color: #ffc0a0; font-weight: 900; }
+    .character-day-label { margin-top: 15px; color: #c9cce0; font-size: 12px; font-weight: 750; }
+    .character-day-select { width: 100%; min-height: 42px; margin-top: 6px; padding: 0 12px; border: 1px solid #ffffff30; border-radius: 11px; background: #121630; color: #f7f5ff; cursor: pointer; }
+    .character-day-status { min-height: 18px; margin-top: 9px; color: var(--muted); font-size: 11px; }
+    .character-launch { width: 100%; margin-top: 8px; }
 
     .red-theme .journey-head h1, .red-theme .event-card h2 { color: #ffaaa5; }
     .red-theme .step-pill { border-color: #ff868644; background: #ff6e6518; color: #ffc1b7; }
@@ -677,6 +859,8 @@
       .control-tip { max-width: 160px; }
       .chest { border-radius: 11px; }
       .character-grid { grid-template-columns: 1fr; }
+      .award-people { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .award-person { min-height: 122px; }
       .store-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .character-choice { min-height: 150px; }
       .multi-event { padding: 12px; }
@@ -720,7 +904,7 @@
       <button class="menu-button" id="menu-button" type="button" hidden>← Main menu</button>
     </header>
     <main id="app" aria-live="polite"></main>
-    <p class="footer-note">A tiny original game about making it through a very normal day.</p>
+    <p class="footer-note">Pls don't steal my characters.</p>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" async></script>
@@ -729,35 +913,35 @@
       blue: {
         name: "Blue",
         difficulty: "Easy",
-        tagline: "Professional microwave enthusiast. Amateur bus dodger.",
+        tagline: "Totally not a microwave in disguise.",
         emoji: "💙",
         events: [
           { id: "wake", title: "Wake up", kind: "button", emoji: "🌤️", description: "A new day begins. Your alarm clock is being very dramatic about it.", action: "Get out of bed", success: "Blue is awake. The pillow has been defeated." },
-          { id: "internship-commute", title: "Go to Internship", kind: "dodge", encounter: "Morning commute", pattern: "fan", emoji: "🚌", description: "Dodge the incoming chaos and make it to the internship. Survive for 10 seconds.", gameOver: "Bus crashed, you survived. But now you cant go to internship.. How unfortunate." },
+          { id: "internship-commute", title: "Go to Internship", kind: "dodge", encounter: "Morning commute", pattern: "fan", emoji: "🚌", description: "Get ready for the most chaotic day of your life. Survive for 10 seconds.", gameOver: "Bus crashed, you survived. But now you cant go to internship.. How unfortunate." },
           { id: "internship", title: "Do Internship", kind: "typing", emoji: "⌨️", description: "Your supervisor asks you to type one sentence. This is apparently the whole job.", target: "I love Microwaves", gameOver: "You forgot how to type. Your internship supervisor is disappointed." },
-          { id: "home-commute", title: "Go Home", kind: "dodge", encounter: "The journey back", pattern: "lanes", emoji: "🌆", description: "The route home has developed a projectile problem. Find the gaps and survive for 10 seconds.", gameOver: "You got lost on your way home. Guess you're homeless now." },
-          { id: "fortnite", title: "Play Fortnite", kind: "chests", emoji: "🎮", description: "Twenty suspiciously convenient treasure chests. Open every single one.", chestCount: 20 },
+          { id: "home-commute", title: "Go Home", kind: "dodge", encounter: "The journey back", pattern: "lanes", emoji: "🌆", description: "The route home has developed a projectile problem. Find the gaps and survive for 10 seconds.", gameOver: "You are 10 meters from home...But your dont feel like walking that much. Guess you're homeless now." },
+          { id: "fortnite", title: "Play Fortnite", kind: "chests", emoji: "🎮", description: "Twenty convenient treasure chests. Open every single one.", chestCount: 20 },
           { id: "sleep", title: "Sleep", kind: "button", emoji: "🌙", description: "You have completed an entire day. Go to sleep before the day invents a seventh event.", action: "Go to sleep", success: "Blue is asleep. The alarm clock is already plotting." }
         ]
       },
       red: {
         name: "Red",
         difficulty: "Hard",
-        tagline: "Nightmare boxer. Railway enthusiast under protest.",
+        tagline: "Monday left him broken.",
         emoji: "❤️",
         events: [
-          { id: "nightmare", title: "Fight your nightmare and wake up", kind: "dodge", encounter: "The nightmare", pattern: "red-nightmare", duration: 14, lives: 3, emoji: "👁️", description: "The nightmare has learned to aim. Survive its shifting attack patterns to wake up.", gameOver: "imagine not waking up" },
-          { id: "internship-commute", title: "Go to Internship", kind: "runner", environment: "day", duration: 30, difficulty: 1, emoji: "🚆", description: "Three lanes, one internship, and a railway system with a personal grudge. Survive for 30 seconds.", gameOver: "You just got Subway surfer'd" },
+          { id: "nightmare", title: "WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP ", kind: "dodge", encounter: "WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP", pattern: "red-nightmare", duration: 14, lives: 3, emoji: "👁️", description: "WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP WAKE UP ", gameOver: "imagine not waking up" },
+          { id: "internship-commute", title: "Go to Internship", kind: "runner", environment: "day", duration: 30, difficulty: 1, emoji: "🚆", description: "Red's life is subway surfers gameplay", gameOver: "You just got Subway surfer'd" },
           {
             id: "internship",
             title: "Do Internship",
             kind: "multitask",
             emoji: "📋",
-            description: "The office has four simultaneous emergencies. Naturally, all of them are your job.",
+            description: "Avarage day for Red",
             gameOver: {
               computer: "You just leaked your Ip adress..... 219.51.250.123",
               phone: "Pick up the phone, Pick up the phone. Why are my kids not home?",
-              quiz: "You failed the quiz. The microwave is now legally smarter than you.",
+              quiz: "You failed the quiz. The fridge is now legally smarter than you.",
               timeout: "The workday is over. The office microwave has been promoted again."
             },
             computerGoal: 8,
@@ -787,26 +971,26 @@
           { id: "home-commute", title: "Go Home", kind: "runner", environment: "night", duration: 30, difficulty: 1.35, emoji: "🌃", description: "It is dark, you are tired, and trains have become less patient. Survive for 30 seconds.", gameOver: "You were so tired that you forgot trains are not made of pillows." },
           { id: "fan-game", title: "Play Video Games with Fan", kind: "choice", emoji: "🎮", description: "Fan has challenged you. A historic opportunity presents itself.", gameOver: "You will NEVER let Fan win. Thats why your hacking every game, right?" },
           { id: "wait-for-blue", title: "Wait for Blue to be online", kind: "wait", emoji: "🕒", description: "Blue said they would be online soon. The definition of soon remains under review." },
-          { id: "sleep", title: "Go to Sleep", kind: "dodge", encounter: "The final nightmare", pattern: "red-sleep", duration: 16, lives: 3, emoji: "🌙", description: "One last fight before bed. The nightmare brought a faster, messier encore.", gameOver: "Imagine not sleeping" }
+          { id: "GO TO SLEEP ", title: "GO TO SLEEP ", kind: "dodge", encounter: "GO TO SLEEP GO TO SLEEP GO TO SLEEP GO TO SLEEP GO TO SLEEP GO TO SLEEP ", pattern: "red-sleep", duration: 16, lives: 3, emoji: "🌙", description: "GO TO SLEEP GO TO SLEEP GO TO SLEEP GO TO SLEEP GO TO SLEEP GO TO SLEEP GO TO SLEEP ", gameOver: "Imagine not sleeping" }
         ]
       },
       fan: {
         name: "Fan",
-        difficulty: "Medium",
-        tagline: "Author, gamer, and champion sleeper.",
+        difficulty: "Death is no option",
+        tagline: "This person may or may not enjoy fortnite.",
         emoji: "💜",
         events: [
           { id: "wake", title: "Wake up", kind: "maze", maze: "morning", dayDuration: 90, emoji: "🌀", description: "Fan has slept through most of the day. Find any of nine exits in the purple dream maze; the clock starts at 08:00 and Fan wakes at 17:00." },
-          { id: "book", title: "Find motivation to work on your book", kind: "distraction", duration: 60, wordGoal: 1000, wordInterval: 650, emoji: "📖", description: "Write while fending off five kinds of distraction. The 1,000-word target is deliberately impossible in one minute; when time runs out, the day keeps going." },
-          { id: "rhythm", title: "Play games with Red", kind: "rhythm", duration: 60, emoji: "🎵", description: "Fan and Red are playing the same song. Red is suspiciously perfect. Keep up with the arrows for one minute." },
-          { id: "fortnite", title: "Play Fortnite with Blue", kind: "shooter", emoji: "🎯", description: "Explore the map with Blue and find all five stationary opponents. They are behind cover and, mercifully, do not shoot back." },
+          { id: "book", title: "Find motivation to work on your book", kind: "distraction", duration: 60, wordGoal: 1000, wordInterval: 650, emoji: "📖", description: "Write your book." },
+          { id: "rhythm", title: "Play games with Red", kind: "rhythm", duration: 60, emoji: "🎵", description: "Play against Red in a rhythm game. " },
+          { id: "fortnite", title: "Play Fortnite with Blue", kind: "shooter", emoji: "🎯", description: "Fortnite time. Blue is opening chests, and you just want to kill enemies that are TOTALLY not bots" },
           { id: "sleep", title: "Go to sleep", kind: "maze", maze: "night", emoji: "🌌", description: "One final, darker dream maze. Find any of nine exits and let Fan finally get some sleep." }
         ]
       },
       "weekend-blue": {
         name: "Weekend Blue",
         difficulty: "Hard",
-        tagline: "A family trip, several hazards, and one very long nightmare.",
+        tagline: "A annoying person who is very annoying.I can't decribee how annoying this person is. he is that annoying. I can't even describe how annoying this person is. He is that annoying..... annoying",
         emoji: "🩵",
         events: [
           { id: "dodge-father", title: "Dodge Father", kind: "dodge", encounter: "Dodge Father", pattern: "weekend-father", duration: 45, lives: 6, phases: ["MEDIUM", "HARD", "EXTREME"], skipFight: true, emoji: "👨", description: "Dodge Father’s increasingly chaotic attacks. Three phases, fifteen seconds each.", gameOver: "Your choices don't matter" },
@@ -814,14 +998,137 @@
           { id: "night-drive", title: "Go home", kind: "drive", duration: 45, emoji: "🚘", description: "Drive home through the night. The bends tighten, the obstacles multiply, and then it starts raining.", gameOver: "DRIVING IN MY CAR, RIGHT AFTER A BEER" },
           { id: "nightmare-battle", title: "Go to sleep", kind: "dodge", encounter: "Nightmare Battle", pattern: "nightmare", duration: 90, immortal: true, emoji: "🌙", description: "Survive the nightmare for 90 seconds. Attacks intensify over time, but Blue cannot die here." }
         ]
+      },
+      trump: {
+        name: "Trump",
+        difficulty: "Hard",
+        tagline: "A parody of confidence, awards, and an alarming red button.",
+        emoji: "🧡",
+        events: [
+          {
+            id: "rename-things",
+            title: "Rename Things",
+            kind: "rename",
+            emoji: "📝",
+            description: "One word at a time, type the missing name prefix. Every new name must include AMERICA.",
+            winMessage: "CONGRATULATIONS! EVERYTHING IS AMERICAN NOW!",
+            gameOver: "NOT AMERICAN ENOUGH! SAD!",
+            puzzles: [
+              { original: "WATER", target: "AMERICA", newName: "AMERICA WATER" },
+              { original: "MOON", target: "AMERICA", newName: "AMERICA MOON" },
+              { original: "SCHOOL", target: "AMERICA", newName: "AMERICA SCHOOL" },
+              { original: "PIZZA", target: "AMERICA", newName: "AMERICA PIZZA" },
+              { original: "FRANCE", target: "LITTLE AMERICA", newName: "LITTLE AMERICA", replacement: true }
+            ]
+          },
+          {
+            id: "fake-news",
+            title: "Fake News",
+            kind: "fake-news",
+            emoji: "📰",
+            description: "Ten serious-looking breaking stories. In this newsroom, every single one is fake.",
+            gameOver: "YOUR LIFE IS FAKE NEWS.",
+            articles: [
+              "It has been confirmed that Microwaves are the superior species",
+              "Beer is made of 100% Beer",
+              "Suicide kills you",
+              "People that race in cars are called Racists",
+              "Obama's last name is Obama",
+              "Local man discovers that he has two feet",
+              "Someone ate dirt today",
+              "I know your IP address",
+              "163.234.203.14",
+              "Someone ate dirt again today"
+            ]
+          },
+          {
+            id: "nuke-world",
+            title: "Nuke the World",
+            kind: "nuke",
+            duration: 60,
+            emoji: "☢️",
+            description: "Survive the 60-second countdown without clicking the button. The button is very click-shaped.",
+            gameOver: "Welp, the world has been destroyed. At least no one can accuse you of stuff anymore."
+          },
+          {
+            id: "give-awards",
+            title: "Give Awards",
+            kind: "awards",
+            emoji: "🏆",
+            description: "Five awards, four people, and one very obvious recipient.",
+            gameOver: "RIGGED! THE WHOLE AWARD CEREMONY IS RIGGED!",
+            awards: [
+              "World's Most Orange Human",
+              "Most American Person Alive",
+              "Nobel Prize for Doing Absolutely Nothing",
+              "World's Most Expensive Spray Tan",
+              "Best Looking Egg"
+            ]
+          },
+          {
+            id: "dodge-allegations",
+            title: "Dodge the Allegations",
+            kind: "dodge",
+            encounter: "Dodge the Allegations",
+            pattern: "trump-allegations",
+            duration: 60,
+            lives: 10,
+            hitPoints: true,
+            emoji: "❤️",
+            description: "Dodge the projectiles for one minute. WASD or arrow keys move the heart; every hit costs 1 HP.",
+            gameOver: "YOU DID NOT SURVIVE THE ALLEGATIONS, ALLEGATIONS!"
+          }
+        ]
       }
     };
+
+    const characterGroups = [
+      {
+        id: "blue",
+        scenario: "blue",
+        name: "Blue",
+        tagline: characters.blue.tagline,
+        emoji: characters.blue.emoji,
+        avatarClass: "blue-avatar",
+        days: [{ id: "blue", label: "Normal day" }, { id: "weekend-blue", label: "Weekend Blue" }]
+      },
+      {
+        id: "red",
+        scenario: "red",
+        name: "Red",
+        tagline: characters.red.tagline,
+        emoji: characters.red.emoji,
+        avatarClass: "red-avatar",
+        days: [{ id: "red", label: "Red's day" }]
+      },
+      {
+        id: "fan",
+        scenario: "fan",
+        name: "Fan",
+        tagline: characters.fan.tagline,
+        emoji: characters.fan.emoji,
+        avatarClass: "fan-avatar",
+        days: [{ id: "fan", label: "Fan's day" }]
+      },
+      {
+        id: "trump",
+        scenario: "trump",
+        name: "Trump",
+        tagline: characters.trump.tagline,
+        emoji: characters.trump.emoji,
+        avatarClass: "trump-avatar",
+        days: [{ id: "trump", label: "Trump's day" }]
+      }
+    ];
+
+    const selectedDayByGroup = { blue: "blue", red: "red", fan: "fan", trump: "trump" };
 
     const progressByCharacter = {
       blue: { eventIndex: 0, openedChests: new Set() },
       red: { eventIndex: 0, openedChests: new Set() },
       fan: { eventIndex: 0, openedChests: new Set() },
-      "weekend-blue": { eventIndex: 0, openedChests: new Set() }
+      "weekend-blue": { eventIndex: 0, openedChests: new Set() },
+      trump: { eventIndex: 0, openedChests: new Set() }
     };
     let character = characters.blue;
     let selectedCharacterId = null;
@@ -854,10 +1161,31 @@
     let driveGame = null;
     let driveFrame = 0;
     let nightmareHits = 0;
+    let renameGame = null;
+    let newsGame = null;
+    let nukeGame = null;
+    let nukeInterval = 0;
+    let awardsGame = null;
 
     const ARENA_WIDTH = 720;
     const ARENA_HEIGHT = 400;
     const PLAYER_RADIUS = 12;
+    const TRUMP_PROJECTILE_CONFIG = {
+      baseRadius: 5,
+      baseSpeed: 90,
+      minSizeMultiplier: 0.5,
+      maxSizeMultiplier: 4,
+      minSpeedMultiplier: 0.5,
+      maxSpeedMultiplier: 5,
+      bounceProbability: 0.5,
+      splitProbability: 0.25,
+      splitCount: 3,
+      maxActiveProjectiles: 320,
+      minSpawnDistance: 18,
+      startSpawnInterval: 0.92,
+      endSpawnInterval: 0.12,
+      invulnerabilityDuration: 0.4
+    };
     const SHOPPING_ROUNDS = [
       {
         aisleName: "Bäckerei & Kühlung",
@@ -888,6 +1216,11 @@
     function render() {
       menuButton.hidden = screen === "menu" || screen === "complete";
       menuButton.textContent = "← Character select";
+      const currentEvent = character && character.events[eventIndex];
+      document.body.classList.toggle(
+        "allegations-playing",
+        screen === "event" && currentEvent && currentEvent.pattern === "trump-allegations"
+      );
       if (screen === "menu") renderMenu();
       else if (screen === "event") renderEvent();
       else if (screen === "gameover") renderGameOver();
@@ -899,30 +1232,50 @@
         <section class="panel hero">
           <span class="eyebrow">✦ Pick a life to play</span>
           <h1>Life Simulator</h1>
-          <p class="hero-copy">Four very different lives. Twenty-two events. At least one microwave with questionable career ambitions.</p>
+          <p class="hero-copy">Yo how do i microwave my siser?</p>
           <div class="character-grid">
-            ${Object.entries(characters).map(([id, entry]) => {
-              const progress = progressByCharacter[id];
-              const isComplete = progress.eventIndex >= entry.events.length;
-              const status = isComplete ? "Life complete · replay" : progress.eventIndex ? `Continue · event ${progress.eventIndex + 1} of ${entry.events.length}` : `Start · ${entry.events.length} events`;
-              const avatarClass = id === "red" ? "red-avatar" : id === "fan" ? "fan-avatar" : "blue-avatar";
-              const choiceClass = id === "red" ? "red-choice" : id === "fan" ? "fan-choice" : id === "weekend-blue" ? "weekend-choice" : "";
-              const difficultyClass = id === "red" ? "hard" : id === "fan" ? "fan-difficulty" : id === "weekend-blue" ? "weekend-difficulty" : "";
-              return `<button class="character-choice ${choiceClass}" type="button" data-character="${id}">
+            ${characterGroups.map((group) => {
+              const entry = characters[group.scenario];
+              const selectedDay = selectedDayByGroup[group.id];
+              const choiceClass = group.id === "red" ? "red-choice" : group.id === "fan" ? "fan-choice" : group.id === "trump" ? "trump-choice" : "";
+              const difficultyClass = group.id === "red" ? "hard" : group.id === "fan" ? "fan-difficulty" : group.id === "trump" ? "trump-difficulty" : "";
+              return `<section class="character-choice ${choiceClass}">
                 <span class="character-choice-top">
-                  <span class="${avatarClass}" aria-hidden="true">${entry.emoji}</span>
-                  <span><h2>${entry.name}</h2><p>${entry.tagline}</p></span>
+                  <span class="${group.avatarClass}" aria-hidden="true">${group.emoji}</span>
+                  <span><h2>${group.name}</h2><p>${group.tagline}</p></span>
                 </span>
-                <span class="difficulty ${difficultyClass}">${entry.difficulty.toUpperCase()} · ${entry.events.length} EVENTS</span>
-                <span class="fine-print">${status}</span>
-              </button>`;
+                <span class="difficulty ${difficultyClass}">${group.days.length > 1 ? `${group.days.length} AVAILABLE DAYS` : `${entry.difficulty.toUpperCase()} · 1 DAY`}</span>
+                <label class="character-day-label" for="day-select-${group.id}">Choose a day</label>
+                <select class="character-day-select" id="day-select-${group.id}" data-day-select="${group.id}">
+                  ${group.days.map((day) => `<option value="${day.id}" ${selectedDay === day.id ? "selected" : ""}>${day.label}</option>`).join("")}
+                </select>
+                <p class="character-day-status" data-day-status="${group.id}">${getDayProgressText(selectedDay)}</p>
+                <button class="button primary character-launch" type="button" data-play-group="${group.id}">Play selected day</button>
+              </section>`;
             }).join("")}
           </div>
-          <p class="fine-print">Original characters, original chaos, no microwave employment guarantees.</p>
+          <p class="fine-print">These are MY original characters. MINE. No one else's. Don't stael them</p>
         </section>`;
-      app.querySelectorAll("[data-character]").forEach((button) => {
-        button.addEventListener("click", () => selectCharacter(button.dataset.character));
+      app.querySelectorAll("[data-day-select]").forEach((select) => {
+        select.addEventListener("change", () => {
+          selectedDayByGroup[select.dataset.daySelect] = select.value;
+          const status = app.querySelector(`[data-day-status="${select.dataset.daySelect}"]`);
+          if (status) status.textContent = getDayProgressText(select.value);
+        });
       });
+      app.querySelectorAll("[data-play-group]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectCharacter(selectedDayByGroup[button.dataset.playGroup]);
+        });
+      });
+    }
+
+    function getDayProgressText(scenarioId) {
+      const progress = progressByCharacter[scenarioId];
+      const scenario = characters[scenarioId];
+      if (progress.eventIndex >= scenario.events.length) return "Day complete · replay";
+      if (progress.eventIndex) return `Continue · event ${progress.eventIndex + 1} of ${scenario.events.length}`;
+      return `Start · ${scenario.events.length} events`;
     }
 
     function selectCharacter(id) {
@@ -950,7 +1303,7 @@
       const current = eventIndex + 1;
       const percent = ((current - 1) / character.events.length) * 100;
       return `
-        <section class="panel journey ${selectedCharacterId === "red" ? "red-theme" : selectedCharacterId === "fan" ? "fan-theme" : selectedCharacterId === "weekend-blue" ? "weekend-theme" : ""}">
+        <section class="panel journey ${selectedCharacterId === "red" ? "red-theme" : selectedCharacterId === "fan" ? "fan-theme" : selectedCharacterId === "weekend-blue" ? "weekend-theme" : selectedCharacterId === "trump" ? "trump-theme" : ""}${event.pattern === "trump-allegations" ? " allegations-fullscreen" : ""}">
           <div class="journey-head">
             <div><h1>${character.name}'s day</h1><p>${event.description}</p></div>
             <span class="step-pill">EVENT ${current} / ${character.events.length}</span>
@@ -974,8 +1327,10 @@
       }
       if (event.kind === "dodge") {
         const hasBossStatus = Boolean(event.phases || event.pattern === "nightmare");
-        const bossStatus = event.pattern === "nightmare" ? "NIGHTMARE INTENSITY · 0% · 72 BPM" : "PHASE 1 · MEDIUM";
-        const lifeDisplay = event.immortal ? "∞ HEARTS · IMMORTAL" : `${"❤ ".repeat(event.lives || 6).trim()}`;
+        const bossStatus = event.pattern === "nightmare" ? "NIGHTMARE INTENSITY · 0% · 72 BPM" :
+          event.phases ? `PHASE 1 · ${event.phases[0]}` : "";
+        const lifeDisplay = event.immortal ? "∞ HEARTS · IMMORTAL" :
+          event.hitPoints ? `HP · ${event.lives} / ${event.lives}` : `${"❤ ".repeat(event.lives || 6).trim()}`;
         return `
           <section class="event-card">
             <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
@@ -985,7 +1340,7 @@
               <canvas class="arena" id="arena" width="${ARENA_WIDTH}" height="${ARENA_HEIGHT}" aria-label="Bullet-dodging arena. Move with arrow keys or WASD, or drag the heart."></canvas>
               ${hasBossStatus ? `<div class="boss-phase" id="boss-phase">${bossStatus}</div>` : ""}
               <div class="arena-status">
-                <span id="lives-label" aria-label="${event.immortal ? "Immortal" : `${event.lives || 6} hearts remaining`}">${lifeDisplay}</span>
+                <span id="lives-label" aria-label="${event.immortal ? "Immortal" : event.hitPoints ? `${event.lives} of ${event.lives} HP remaining` : `${event.lives || 6} hearts remaining`}">${lifeDisplay}</span>
                 ${event.immortal ? '<span id="nightmare-hit-count" aria-live="polite">HITS · 0</span>' : ""}
                 <span id="timer-label">READY · ${(event.duration || 10).toFixed(1)}s</span>
               </div>
@@ -1003,6 +1358,10 @@
             ${event.skipFight ? '<button class="button event-action" id="skip-fight" type="button">Skip Fight</button>' : ""}
           </section>`;
       }
+      if (event.kind === "rename") return renderRenameContent(event);
+      if (event.kind === "fake-news") return renderFakeNewsContent(event);
+      if (event.kind === "nuke") return renderNukeContent(event);
+      if (event.kind === "awards") return renderAwardsContent(event);
       if (event.kind === "shopping") return renderShoppingContent(event);
       if (event.kind === "drive") return renderDriveContent(event);
       if (event.kind === "runner") {
@@ -1080,6 +1439,111 @@
           </div>
           <p class="chest-count" id="chest-count">${openedChests.size} / ${event.chestCount} chests opened</p>
         </section>`;
+    }
+
+    function renderRenameContent(event) {
+      const currentIndex = renameGame ? renameGame.index : 0;
+      const puzzle = event.puzzles[currentIndex];
+      const won = renameGame ? renameGame.won : false;
+      return `
+        <section class="event-card trump-minigame">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          ${won ? `
+            <p class="rename-win" role="status">${event.winMessage}</p>
+            <button class="button primary event-action" id="rename-continue" type="button">Continue</button>
+          ` : `
+            <div class="rename-card">
+              <p class="rename-progress">WORD ${currentIndex + 1} / ${event.puzzles.length}</p>
+              <p class="rename-original">${puzzle.original}</p>
+              <label class="rename-prompt" for="rename-input">${puzzle.replacement ? "Type the replacement name:" : `Type the missing letters before ${puzzle.original}:`}</label>
+              <div class="rename-preview" id="rename-preview" aria-live="polite">${puzzle.replacement ? "________" : `________ ${puzzle.original}`}</div>
+              <input class="rename-input" id="rename-input" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="${puzzle.target.length}" aria-label="Type the missing letters">
+            </div>
+          `}
+        </section>`;
+    }
+
+    function renderFakeNewsContent(event) {
+      return `
+        <section class="event-card trump-minigame">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div id="fake-news-stage"></div>
+        </section>`;
+    }
+
+    function renderFakeNewsStage() {
+      if (!newsGame) return;
+      const stage = document.getElementById("fake-news-stage");
+      if (!stage) return;
+      if (newsGame.index >= newsGame.event.articles.length) {
+        completeEvent();
+        return;
+      }
+      stage.innerHTML = `
+        <p class="news-progress">BREAKING · STORY ${newsGame.index + 1} / ${newsGame.event.articles.length}</p>
+        <article class="news-bulletin" aria-live="polite">
+          <p class="news-kicker">AMERICA NEWS NETWORK · DEVELOPING STORY</p>
+          <h3 class="news-article">"${newsGame.event.articles[newsGame.index]}"</h3>
+        </article>
+        <div class="news-actions">
+          <button class="button" type="button" data-news-answer="real">REAL NEWS</button>
+          <button class="button primary" type="button" data-news-answer="fake">FAKE NEWS</button>
+        </div>`;
+    }
+
+    function renderNukeContent(event) {
+      return `
+        <section class="event-card trump-minigame">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="nuke-stage">
+            <span class="nuke-timer" id="nuke-timer" role="timer" aria-live="off">${event.duration.toFixed(1)}s</span>
+            <button class="nuke-button" id="nuke-button" type="button" aria-label="Nuclear button. Do not click.">☢</button>
+          </div>
+          <div class="nuke-taunts" aria-hidden="true"><span>Are you sure?</span><span>Just one little click...</span><span>DO IT.</span><span>You won't regret it!</span></div>
+        </section>`;
+    }
+
+    function renderAwardsContent(event) {
+      return `
+        <section class="event-card trump-minigame">
+          <div class="event-emoji" aria-hidden="true">${event.emoji}</div>
+          <h2>${event.title}</h2>
+          <p class="event-copy">${event.description}</p>
+          <div class="award-stage" id="award-stage"></div>
+        </section>`;
+    }
+
+    function renderAwardsStage() {
+      if (!awardsGame) return;
+      const stage = document.getElementById("award-stage");
+      if (!stage) return;
+      const { event, index } = awardsGame;
+      if (index >= event.awards.length) {
+        completeEvent();
+        return;
+      }
+      const people = [
+        { id: "trump", name: "TRUMP", emoji: awardsGame.count ? "🕺" : "🧑🏼‍💼" },
+        { id: "judge", name: "THE JUDGE", emoji: "⚖️" },
+        { id: "voter", name: "THE VOTER", emoji: "🧑‍🦱" },
+        { id: "statue", name: "A GOLD STATUE", emoji: "🗽" }
+      ];
+      stage.innerHTML = `
+        <p class="award-progress">AWARD ${index + 1} / ${event.awards.length}</p>
+        <p class="award-title">🏆 ${event.awards[index]} 🏆</p>
+        <div class="award-people" role="group" aria-label="Choose who receives the award">
+          ${people.map((person) => `<button class="award-person${person.id === "trump" && awardsGame.count ? " trump-recipient" : person.id !== "trump" && awardsGame.count ? " disappointed" : ""}" type="button" data-award-recipient="${person.id}">
+            <span class="person-emoji" aria-hidden="true">${person.emoji}${person.id === "trump" && awardsGame.count ? " 🏆" : ""}</span>
+            <strong>${person.name}</strong>
+          </button>`).join("")}
+        </div>
+        <p class="award-celebration" aria-live="polite">${awardsGame.count ? `Trump celebrates award ${awardsGame.count}!` : "Select the award recipient."}</p>`;
     }
 
     function renderShoppingContent(event) {
@@ -1189,7 +1653,7 @@
             <article class="book-page">
               <div class="book-heading"><span>FAN'S NOVEL · DRAFT 1</span><span>PAGE 001</span></div>
               <h3>The Day the Moon Forgot</h3>
-              <p class="book-copy" id="book-copy">The moon was late again. Nobody knew why. Fan opened a notebook and decided this was probably worth writing down.</p>
+              <p class="book-copy" id="book-copy">The moon was late again. Nobody knew why. Fan opened a notebook and decided this was probably worth writing down. i eat dirt. I eat dirt. I eat dirt. Fornite battle pass. i just shit out of my ass</p>
               <p class="book-words" id="book-words" aria-live="polite"></p>
               <div class="book-caret" aria-hidden="true"></div>
             </article>
@@ -1199,7 +1663,7 @@
             <button class="button primary write-button" id="writing-button" type="button" aria-pressed="false">HOLD TO WRITE</button>
             <p class="fan-tip" id="distraction-status">Hold the button to write. Let go before clicking a distraction.</p>
           </div>
-          <p class="fan-tip">The target is ${event.wordGoal} words in one minute. The notebook has been given unrealistic expectations.</p>
+          <p class="fan-tip">Write your book. Dont get distracted.</p>
         </section>`;
     }
 
@@ -1226,7 +1690,7 @@
           <button class="button primary event-action" id="rhythm-start" type="button">Start the song</button>
           <section class="rhythm-defeat" id="rhythm-defeat" hidden>
             <h3>YOU LOST!</h3>
-            <p>You lost HARD.</p>
+            <p>You suck at this game.</p>
             <p>Red didn't miss a single note.</p>
             <button class="button primary" id="rhythm-continue" type="button">Continue</button>
           </section>
@@ -1424,6 +1888,14 @@
         if (event.skipFight) {
           document.getElementById("skip-fight").addEventListener("click", completeEvent);
         }
+      } else if (event.kind === "rename") {
+        prepareRename(event);
+      } else if (event.kind === "fake-news") {
+        prepareFakeNews(event);
+      } else if (event.kind === "nuke") {
+        prepareNuke(event);
+      } else if (event.kind === "awards") {
+        prepareAwards(event);
       } else if (event.kind === "runner") {
         prepareRunner(event);
       } else if (event.kind === "shopping") {
@@ -1701,11 +2173,11 @@
     }
 
     const distractionTypes = [
-      { type: "youtube", title: "YouTube", message: "A video titled “One More, Then You Write” is autoplaying." },
-      { type: "red", title: "Red invited you to play", message: "Red: “Quick match? It will only take a minute.”" },
-      { type: "blue", title: "Blue invited you to play", message: "Blue: “I found something in Fortnite!”" },
+      { type: "youtube", title: "YouTube", message: "A video titled “How to make your friends a furry” is autoplaying." },
+      { type: "red", title: "Red invited you to play", message: "Red: “Hello yes i am red. please give me vbucks.”" },
+      { type: "blue", title: "Blue invited you to play", message: "Blue: “Im gonna kidnap you so you will play fortnite”" },
       { type: "phone", title: "Phone notification", message: "Your phone buzzed. It refuses to say why." },
-      { type: "ad", title: "Totally Random Ad", message: "A suspicious wizard wants to sell you a third keyboard." }
+      { type: "ad", title: "Totally Random Ad", message: "Single Microwaves in your area" }
     ];
     const bookWordBank = "somewhere the rain remembered every name and carried it beyond the quiet town where nobody asked the moon for directions".split(" ");
 
@@ -2355,6 +2827,103 @@
       heldKeys.clear();
     }
 
+    function prepareRename(event) {
+      renameGame = { event, index: 0, won: false };
+      renderRenameScreen();
+    }
+
+    function renderRenameScreen() {
+      if (!renameGame) return;
+      const { event, index, won } = renameGame;
+      app.innerHTML = renderJourney(event);
+      if (won) {
+        document.getElementById("rename-continue").addEventListener("click", completeEvent);
+        return;
+      }
+      const puzzle = event.puzzles[index];
+      const input = document.getElementById("rename-input");
+      const preview = document.getElementById("rename-preview");
+      input.addEventListener("input", () => {
+        const answer = input.value.toUpperCase();
+        if (!puzzle.target.startsWith(answer)) {
+          showGameOver(event);
+          return;
+        }
+        preview.textContent = puzzle.replacement
+          ? answer || "________"
+          : `${answer || "________"} ${puzzle.original}`;
+        if (answer === puzzle.target) {
+          renameGame.index += 1;
+          if (renameGame.index === event.puzzles.length) renameGame.won = true;
+          renderRenameScreen();
+        }
+      });
+      input.focus();
+    }
+
+    function prepareFakeNews(event) {
+      newsGame = { event, index: 0 };
+      const stage = document.getElementById("fake-news-stage");
+      stage.addEventListener("click", (clickEvent) => {
+        const answer = clickEvent.target.closest("[data-news-answer]");
+        if (!answer || !newsGame) return;
+        if (answer.dataset.newsAnswer !== "fake") {
+          showGameOver(event);
+          return;
+        }
+        newsGame.index += 1;
+        if (newsGame.index === event.articles.length) {
+          completeEvent();
+          return;
+        }
+        renderFakeNewsStage();
+      });
+      renderFakeNewsStage();
+    }
+
+    function prepareNuke(event) {
+      nukeGame = { event, startedAt: performance.now() };
+      document.getElementById("nuke-button").addEventListener("click", () => {
+        if (!nukeGame) return;
+        if (performance.now() - nukeGame.startedAt >= event.duration * 1000) {
+          completeEvent();
+          return;
+        }
+        showGameOver(event);
+      });
+      updateNukeTimer();
+      if (nukeGame) nukeInterval = window.setInterval(updateNukeTimer, 50);
+    }
+
+    function updateNukeTimer() {
+      if (!nukeGame) return;
+      const remaining = Math.max(0, nukeGame.event.duration - (performance.now() - nukeGame.startedAt) / 1000);
+      const timer = document.getElementById("nuke-timer");
+      if (timer) timer.textContent = `${remaining.toFixed(1)}s`;
+      if (remaining <= 0) completeEvent();
+    }
+
+    function prepareAwards(event) {
+      awardsGame = { event, index: 0, count: 0 };
+      const stage = document.getElementById("award-stage");
+      stage.addEventListener("click", (clickEvent) => {
+        const recipient = clickEvent.target.closest("[data-award-recipient]");
+        if (!recipient || !awardsGame) return;
+        if (recipient.dataset.awardRecipient !== "trump") {
+          showGameOver(event);
+          return;
+        }
+        awardsGame.count += 1;
+        awardsGame.index += 1;
+        if (awardsGame.index === event.awards.length) {
+          completeEvent();
+          return;
+        }
+        renderAwardsStage();
+      });
+      renderAwardsStage();
+    }
+
     function prepareBoss(event) {
       cleanupBoss();
       const canvas = document.getElementById("arena");
@@ -2363,6 +2932,9 @@
         event,
         canvas,
         context: canvas.getContext("2d"),
+        width: ARENA_WIDTH,
+        height: ARENA_HEIGHT,
+        resizeHandler: null,
         x: ARENA_WIDTH / 2,
         y: ARENA_HEIGHT / 2,
         elapsed: 0,
@@ -2380,6 +2952,11 @@
         beatCount: 0,
         endTimer: 0
       };
+      if (event.pattern === "trump-allegations") {
+        boss.resizeHandler = resizeBossArena;
+        window.addEventListener("resize", boss.resizeHandler);
+        resizeBossArena();
+      }
       drawArena();
       document.getElementById("battle-start").addEventListener("click", startBoss);
       canvas.addEventListener("pointerdown", (pointerEvent) => {
@@ -2407,12 +2984,43 @@
       });
     }
 
+    function resizeBossArena() {
+      if (!boss || boss.event.pattern !== "trump-allegations") return;
+      const bounds = boss.canvas.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      const oldWidth = boss.width || ARENA_WIDTH;
+      const oldHeight = boss.height || ARENA_HEIGHT;
+      const width = bounds.width;
+      const height = bounds.height;
+      const scaleX = width / oldWidth;
+      const scaleY = height / oldHeight;
+      if (scaleX !== 1 || scaleY !== 1) {
+        boss.x *= scaleX;
+        boss.y *= scaleY;
+        for (const bullet of boss.bullets) {
+          bullet.x *= scaleX;
+          bullet.y *= scaleY;
+        }
+      }
+      boss.width = width;
+      boss.height = height;
+      const pixelRatio = Math.min(2, window.devicePixelRatio || 1);
+      const pixelWidth = Math.round(width * pixelRatio);
+      const pixelHeight = Math.round(height * pixelRatio);
+      if (boss.canvas.width !== pixelWidth) boss.canvas.width = pixelWidth;
+      if (boss.canvas.height !== pixelHeight) boss.canvas.height = pixelHeight;
+      boss.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      boss.x = Math.max(PLAYER_RADIUS + 3, Math.min(width - PLAYER_RADIUS - 3, boss.x));
+      boss.y = Math.max(PLAYER_RADIUS + 3, Math.min(height - PLAYER_RADIUS - 3, boss.y));
+      drawArena();
+    }
+
     function setPointerTarget(pointerEvent) {
       if (!boss) return;
       const bounds = boss.canvas.getBoundingClientRect();
       boss.pointerTarget = {
-        x: (pointerEvent.clientX - bounds.left) * ARENA_WIDTH / bounds.width,
-        y: (pointerEvent.clientY - bounds.top) * ARENA_HEIGHT / bounds.height
+        x: (pointerEvent.clientX - bounds.left) * boss.width / bounds.width,
+        y: (pointerEvent.clientY - bounds.top) * boss.height / bounds.height
       };
     }
 
@@ -2424,8 +3032,9 @@
       document.getElementById("battle-start").disabled = true;
       const timer = document.getElementById("timer-label");
       if (timer) {
+        const phaseDuration = boss.event.phases ? boss.event.duration / boss.event.phases.length : 0;
         timer.textContent = boss.event.phases
-          ? `PHASE 1 · 15.0s · TOTAL ${boss.event.duration.toFixed(1)}s`
+          ? `PHASE 1 · ${phaseDuration.toFixed(1)}s · TOTAL ${boss.event.duration.toFixed(1)}s`
           : `SURVIVE · ${(boss.event.duration || 10).toFixed(1)}s`;
       }
       if (boss.event.pattern === "nightmare") startBossMusic();
@@ -2439,9 +3048,115 @@
       boss.bullets.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, radius: shape === "diamond" ? 9 : 8, shape });
     }
 
+    function trumpRandom(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function findProjectileSpawn(radius, preferredPosition) {
+      const width = boss.width;
+      const height = boss.height;
+      const safeDistance = radius + PLAYER_RADIUS + TRUMP_PROJECTILE_CONFIG.minSpawnDistance;
+      for (let attempt = 0; attempt < 24; attempt++) {
+        let x;
+        let y;
+        if (preferredPosition && attempt < 8) {
+          const angle = trumpRandom(0, Math.PI * 2);
+          const distance = safeDistance + trumpRandom(0, 30);
+          x = preferredPosition.x + Math.cos(angle) * distance;
+          y = preferredPosition.y + Math.sin(angle) * distance;
+        } else {
+          x = trumpRandom(radius, width - radius);
+          y = trumpRandom(radius, height - radius);
+        }
+        x = Math.max(radius, Math.min(width - radius, x));
+        y = Math.max(radius, Math.min(height - radius, y));
+        if (Math.hypot(x - boss.x, y - boss.y) >= safeDistance) return { x, y };
+      }
+
+      const corners = [
+        { x: radius, y: radius },
+        { x: width - radius, y: radius },
+        { x: radius, y: height - radius },
+        { x: width - radius, y: height - radius }
+      ];
+      corners.sort((left, right) =>
+        Math.hypot(right.x - boss.x, right.y - boss.y) - Math.hypot(left.x - boss.x, left.y - boss.y)
+      );
+      return Math.hypot(corners[0].x - boss.x, corners[0].y - boss.y) >= safeDistance ? corners[0] : null;
+    }
+
+    function spawnTrumpProjectile(preferredPosition) {
+      const config = TRUMP_PROJECTILE_CONFIG;
+      if (!boss || boss.bullets.length >= config.maxActiveProjectiles) return false;
+      const sizeMultiplier = trumpRandom(config.minSizeMultiplier, config.maxSizeMultiplier);
+      const speedMultiplier = trumpRandom(config.minSpeedMultiplier, config.maxSpeedMultiplier);
+      const radius = config.baseRadius * sizeMultiplier;
+      const position = findProjectileSpawn(radius, preferredPosition);
+      if (!position) return false;
+      const directionMode = Math.random() < 0.5 ? "targeted" : "random";
+      const angle = directionMode === "targeted"
+        ? Math.atan2(boss.y - position.y, boss.x - position.x)
+        : trumpRandom(0, Math.PI * 2);
+      const speed = config.baseSpeed * speedMultiplier;
+      boss.bullets.push({
+        x: position.x,
+        y: position.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius,
+        sizeMultiplier,
+        speedMultiplier,
+        directionMode,
+        bounceProbability: config.bounceProbability,
+        splitProbability: config.splitProbability,
+        age: 0,
+        visualSize: true
+      });
+      return true;
+    }
+
+    function resolveTrumpBoundary(index) {
+      const bullet = boss.bullets[index];
+      const hitLeft = bullet.x <= bullet.radius && bullet.vx < 0;
+      const hitRight = bullet.x >= boss.width - bullet.radius && bullet.vx > 0;
+      const hitTop = bullet.y <= bullet.radius && bullet.vy < 0;
+      const hitBottom = bullet.y >= boss.height - bullet.radius && bullet.vy > 0;
+      if (!hitLeft && !hitRight && !hitTop && !hitBottom) return false;
+
+      if (Math.random() < bullet.bounceProbability) {
+        if (hitLeft || hitRight) bullet.vx = -bullet.vx;
+        if (hitTop || hitBottom) bullet.vy = -bullet.vy;
+        bullet.x = Math.max(bullet.radius + 0.01, Math.min(boss.width - bullet.radius - 0.01, bullet.x));
+        bullet.y = Math.max(bullet.radius + 0.01, Math.min(boss.height - bullet.radius - 0.01, bullet.y));
+        return false;
+      }
+
+      const spawnPosition = { x: bullet.x, y: bullet.y };
+      boss.bullets.splice(index, 1);
+      if (Math.random() < bullet.splitProbability &&
+          boss.bullets.length + TRUMP_PROJECTILE_CONFIG.splitCount <= TRUMP_PROJECTILE_CONFIG.maxActiveProjectiles) {
+        for (let child = 0; child < TRUMP_PROJECTILE_CONFIG.splitCount; child++) {
+          spawnTrumpProjectile(spawnPosition);
+        }
+      }
+      return true;
+    }
+
+    function trumpSpawnInterval() {
+      const config = TRUMP_PROJECTILE_CONFIG;
+      const progress = Math.max(0, Math.min(1, boss.elapsed / boss.event.duration));
+      return config.startSpawnInterval + (config.endSpawnInterval - config.startSpawnInterval) * progress;
+    }
+
+    function spawnTrumpAttack() {
+      spawnTrumpProjectile();
+    }
+
     function spawnAttack() {
       const event = boss.event;
-      if (event.pattern === "fan") {
+      if (event.pattern === "trump-allegations") {
+        spawnTrumpAttack();
+      } else if (event.pattern === "fan") {
         const originX = 105 + Math.random() * (ARENA_WIDTH - 210);
         const angle = Math.atan2(boss.y - 15, boss.x - originX);
         for (let shot = -1; shot <= 0; shot++) spawnBullet(originX, 15, angle + shot * 0.18, 90);
@@ -2524,6 +3239,7 @@
     function bossAttackInterval() {
       if (boss.event.pattern === "weekend-father") return [1.1, 0.76, 0.48][Math.min(2, Math.floor(boss.elapsed / 15))];
       if (boss.event.pattern === "nightmare") return Math.max(0.3, 1.02 - boss.elapsed * 0.008);
+      if (boss.event.pattern === "trump-allegations") return trumpSpawnInterval();
       if (boss.event.pattern === "fan") return 1.5;
       if (boss.event.pattern === "lanes") return 1.55;
       if (boss.event.pattern === "red-nightmare") return 1.05;
@@ -2594,8 +3310,8 @@
         boss.x += horizontal / length * speed * delta;
         boss.y += vertical / length * speed * delta;
       }
-      boss.x = Math.max(PLAYER_RADIUS + 3, Math.min(ARENA_WIDTH - PLAYER_RADIUS - 3, boss.x));
-      boss.y = Math.max(PLAYER_RADIUS + 3, Math.min(ARENA_HEIGHT - PLAYER_RADIUS - 3, boss.y));
+      boss.x = Math.max(PLAYER_RADIUS + 3, Math.min(boss.width - PLAYER_RADIUS - 3, boss.x));
+      boss.y = Math.max(PLAYER_RADIUS + 3, Math.min(boss.height - PLAYER_RADIUS - 3, boss.y));
 
       boss.spawnIn -= delta;
       if (boss.spawnIn <= 0) {
@@ -2604,8 +3320,85 @@
       }
       for (let index = boss.bullets.length - 1; index >= 0; index--) {
         const bullet = boss.bullets[index];
-        bullet.x += bullet.vx * delta;
-        bullet.y += bullet.vy * delta;
+        if (bullet.age !== undefined) bullet.age += delta;
+        if (boss.event.pattern === "trump-allegations") {
+          bullet.x += bullet.vx * delta;
+          bullet.y += bullet.vy * delta;
+          const hit = Math.hypot(bullet.x - boss.x, bullet.y - boss.y) < bullet.radius + PLAYER_RADIUS - 2;
+          if (hit) {
+            boss.bullets.splice(index, 1);
+            if (boss.invulnerable === 0) {
+              boss.lives -= 1;
+              boss.invulnerable = TRUMP_PROJECTILE_CONFIG.invulnerabilityDuration;
+              const livesLabel = document.getElementById("lives-label");
+              if (livesLabel) {
+                livesLabel.textContent = `HP · ${boss.lives} / ${boss.maxLives}`;
+                livesLabel.setAttribute("aria-label", `${boss.lives} of ${boss.maxLives} HP remaining`);
+              }
+              if (boss.lives === 0) {
+                showGameOver(boss.event);
+                return;
+              }
+            }
+            continue;
+          }
+          resolveTrumpBoundary(index);
+          continue;
+        }
+        if (bullet.orbit) {
+          const orbit = bullet.orbit;
+          if (orbit.detachAt !== null && orbit.detachAt !== undefined && boss.elapsed >= orbit.detachAt) {
+            const direction = Math.sign(orbit.angularSpeed) || 1;
+            const tangent = orbit.angle + direction * Math.PI / 2;
+            bullet.vx = Math.cos(tangent) * orbit.detachSpeed + Math.cos(orbit.angle) * orbit.radialKick;
+            bullet.vy = Math.sin(tangent) * orbit.detachSpeed + Math.sin(orbit.angle) * orbit.radialKick;
+            bullet.speed = Math.hypot(bullet.vx, bullet.vy);
+            bullet.heading = Math.atan2(bullet.vy, bullet.vx);
+            bullet.turnRate = direction * 0.18;
+            bullet.mode = "curve";
+            bullet.orbit = null;
+          } else {
+            orbit.angle += orbit.angularSpeed * delta;
+            orbit.radius += orbit.radialSpeed * delta;
+            bullet.rotation = orbit.angle;
+            bullet.x = orbit.centerX + Math.cos(orbit.angle) * orbit.radius;
+            bullet.y = orbit.centerY + Math.sin(orbit.angle) * orbit.radius;
+          }
+        } else if (bullet.mode === "bounce") {
+          bullet.x += bullet.vx * delta;
+          bullet.y += bullet.vy * delta;
+          if (bullet.x < bullet.radius || bullet.x > ARENA_WIDTH - bullet.radius) {
+            bullet.x = Math.max(bullet.radius, Math.min(ARENA_WIDTH - bullet.radius, bullet.x));
+            bullet.vx *= -1;
+          }
+          if (bullet.y < bullet.radius || bullet.y > ARENA_HEIGHT - bullet.radius) {
+            bullet.y = Math.max(bullet.radius, Math.min(ARENA_HEIGHT - bullet.radius, bullet.y));
+            bullet.vy *= -1;
+          }
+        } else if (bullet.mode === "curve") {
+          bullet.heading += bullet.turnRate * delta;
+          bullet.vx = Math.cos(bullet.heading) * bullet.speed;
+          bullet.vy = Math.sin(bullet.heading) * bullet.speed;
+          bullet.x += bullet.vx * delta;
+          bullet.y += bullet.vy * delta;
+        } else if (bullet.mode === "vortex") {
+          const centerX = bullet.centerX === undefined ? ARENA_WIDTH / 2 : bullet.centerX;
+          const centerY = bullet.centerY === undefined ? ARENA_HEIGHT / 2 : bullet.centerY;
+          const desired = Math.atan2(centerY - bullet.y, centerX - bullet.x) + bullet.spin * 0.82;
+          let turn = ((desired - bullet.heading + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+          turn = Math.max(-bullet.turnRate * delta, Math.min(bullet.turnRate * delta, turn));
+          bullet.heading += turn;
+          const distance = Math.hypot(centerX - bullet.x, centerY - bullet.y);
+          const speed = bullet.speed * (0.72 + 0.28 * Math.min(1, distance / 260));
+          bullet.vx = Math.cos(bullet.heading) * speed;
+          bullet.vy = Math.sin(bullet.heading) * speed;
+          bullet.x += bullet.vx * delta;
+          bullet.y += bullet.vy * delta;
+        } else {
+          bullet.x += bullet.vx * delta;
+          bullet.y += bullet.vy * delta;
+        }
+        if (bullet.rotationSpeed) bullet.rotation += bullet.rotationSpeed * delta;
         const hit = Math.hypot(bullet.x - boss.x, bullet.y - boss.y) < bullet.radius + PLAYER_RADIUS - 2;
         if (hit && boss.event.immortal) {
           nightmareHits += 1;
@@ -2613,6 +3406,21 @@
           const hitLabel = document.getElementById("nightmare-hit-count");
           if (hitLabel) hitLabel.textContent = `HITS · ${nightmareHits}`;
           boss.bullets.splice(index, 1);
+          continue;
+        }
+        if (hit && boss.event.hitPoints) {
+          boss.lives -= 1;
+          boss.invulnerable = 0.16;
+          const livesLabel = document.getElementById("lives-label");
+          if (livesLabel) {
+            livesLabel.textContent = `HP · ${boss.lives} / ${boss.maxLives}`;
+            livesLabel.setAttribute("aria-label", `${boss.lives} of ${boss.maxLives} HP remaining`);
+          }
+          boss.bullets.splice(index, 1);
+          if (boss.lives === 0) {
+            showGameOver(boss.event);
+            return;
+          }
           continue;
         }
         if (hit && boss.invulnerable === 0) {
@@ -2630,13 +3438,23 @@
           boss.bullets.splice(index, 1);
           continue;
         }
-        if (bullet.x < -25 || bullet.x > ARENA_WIDTH + 25 || bullet.y < -25 || bullet.y > ARENA_HEIGHT + 25) boss.bullets.splice(index, 1);
+        const expired = bullet.age !== undefined && bullet.age >= bullet.maxAge;
+        const beyondOrbit = bullet.orbit && bullet.orbit.radius > bullet.orbit.maxRadius;
+        const margin = bullet.visualSize ? 30 : 25;
+        const outsideArena = bullet.x < -margin || bullet.x > ARENA_WIDTH + margin ||
+          bullet.y < -margin || bullet.y > ARENA_HEIGHT + margin;
+        const reachedVortex = bullet.mode === "vortex" &&
+          Math.hypot(bullet.centerX - bullet.x, bullet.centerY - bullet.y) < 20;
+        if (expired || beyondOrbit || outsideArena || reachedVortex) {
+          boss.bullets.splice(index, 1);
+        }
       }
       drawArena();
       const timer = document.getElementById("timer-label");
       if (timer && boss.event.phases) {
-        const phaseIndex = Math.min(boss.event.phases.length - 1, Math.floor(boss.elapsed / 15));
-        const phaseRemaining = (phaseIndex + 1) * 15 - boss.elapsed;
+        const phaseDuration = duration / boss.event.phases.length;
+        const phaseIndex = Math.min(boss.event.phases.length - 1, Math.floor(boss.elapsed / phaseDuration));
+        const phaseRemaining = (phaseIndex + 1) * phaseDuration - boss.elapsed;
         timer.textContent = `PHASE ${phaseIndex + 1} · ${Math.max(0, phaseRemaining).toFixed(1)}s · TOTAL ${Math.max(0, duration - boss.elapsed).toFixed(1)}s`;
         const phase = document.getElementById("boss-phase");
         if (phase) phase.textContent = `PHASE ${phaseIndex + 1} · ${boss.event.phases[phaseIndex]}`;
@@ -2656,16 +3474,19 @@
     function drawArena() {
       if (!boss) return;
       const context = boss.context;
-      context.clearRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+      const isTrumpAllegations = boss.event.pattern === "trump-allegations";
+      const width = isTrumpAllegations ? boss.width : ARENA_WIDTH;
+      const height = isTrumpAllegations ? boss.height : ARENA_HEIGHT;
+      context.clearRect(0, 0, width, height);
       context.fillStyle = "#11162f";
-      context.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+      context.fillRect(0, 0, width, height);
       context.strokeStyle = "#9caeff12";
       context.lineWidth = 1;
-      for (let x = 20; x < ARENA_WIDTH; x += 40) {
-        context.beginPath(); context.moveTo(x, 0); context.lineTo(x, ARENA_HEIGHT); context.stroke();
+      for (let x = 20; x < width; x += 40) {
+        context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke();
       }
-      for (let y = 20; y < ARENA_HEIGHT; y += 40) {
-        context.beginPath(); context.moveTo(0, y); context.lineTo(ARENA_WIDTH, y); context.stroke();
+      for (let y = 20; y < height; y += 40) {
+        context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke();
       }
       if (boss.event.pattern === "lanes") {
         const safeLanes = getSafeLanes(boss.elapsed);
@@ -2679,13 +3500,30 @@
       for (const bullet of boss.bullets) {
         context.save();
         context.translate(bullet.x, bullet.y);
-        context.rotate(bullet.shape === "diamond" ? Math.PI / 4 : 0);
-        context.fillStyle = bullet.shape === "diamond" ? "#ff9cce" : "#ffd98b";
+        context.rotate(bullet.rotation || (bullet.shape === "diamond" ? Math.PI / 4 : 0));
+        context.fillStyle = isTrumpAllegations ? "#ffcf52" : bullet.color || (bullet.shape === "diamond" ? "#ff9cce" : "#ffd98b");
         context.shadowColor = context.fillStyle;
-        context.shadowBlur = 12;
+        context.shadowBlur = bullet.visualSize ? 4 : 12;
         context.beginPath();
-        if (bullet.shape === "diamond") context.rect(-7, -7, 14, 14);
-        else context.arc(0, 0, bullet.radius, 0, Math.PI * 2);
+        const visualRadius = bullet.visualSize ? bullet.radius : 7;
+        if (bullet.shape === "diamond") context.rect(-visualRadius, -visualRadius, visualRadius * 2, visualRadius * 2);
+        else if (bullet.shape === "square") context.rect(-visualRadius, -visualRadius, visualRadius * 2, visualRadius * 2);
+        else if (bullet.shape === "triangle") {
+          context.moveTo(0, -visualRadius);
+          context.lineTo(visualRadius * 0.9, visualRadius * 0.9);
+          context.lineTo(-visualRadius * 0.9, visualRadius * 0.9);
+          context.closePath();
+        } else if (bullet.shape === "star") {
+          for (let point = 0; point < 10; point++) {
+            const radius = point % 2 === 0 ? visualRadius : visualRadius * 0.45;
+            const angle = point * Math.PI / 5 - Math.PI / 2;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            if (point === 0) context.moveTo(x, y);
+            else context.lineTo(x, y);
+          }
+          context.closePath();
+        } else context.arc(0, 0, bullet.radius, 0, Math.PI * 2);
         context.fill();
         context.restore();
       }
@@ -2694,7 +3532,7 @@
         context.fillStyle = "#e9e9ff";
         context.textAlign = "center";
         context.font = "700 20px system-ui, sans-serif";
-        context.fillText("READY WHEN YOU ARE", ARENA_WIDTH / 2, 45);
+        context.fillText("READY WHEN YOU ARE", width / 2, 45);
       }
     }
 
@@ -3646,10 +4484,20 @@
     function cleanupBoss() {
       if (animationFrame) cancelAnimationFrame(animationFrame);
       if (boss && boss.endTimer) window.clearTimeout(boss.endTimer);
+      if (boss && boss.resizeHandler) window.removeEventListener("resize", boss.resizeHandler);
       if (boss && boss.audio) boss.audio.close();
       animationFrame = 0;
       heldKeys.clear();
       boss = null;
+    }
+
+    function cleanupTrumpMinigames() {
+      if (nukeInterval) window.clearInterval(nukeInterval);
+      nukeInterval = 0;
+      renameGame = null;
+      newsGame = null;
+      nukeGame = null;
+      awardsGame = null;
     }
 
     function cleanupMinigames() {
@@ -3662,6 +4510,7 @@
       cleanupShooter();
       cleanupShopping();
       cleanupDrive();
+      cleanupTrumpMinigames();
     }
 
     function completeEvent() {
